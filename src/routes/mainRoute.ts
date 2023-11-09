@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { User } from "../models/userModel";
 import { Post } from "../models/postModel";
+
 const instagramRouter = Router();
 
 instagramRouter.get("/api", async (req: Request, res: Response) => {
@@ -28,8 +29,6 @@ instagramRouter.post("/api", async (req: Request, res: Response) => {
     const newUser = {
       username: req.body.username,
       password: req.body.password,
-      name: req.body.name,
-      surname: req.body.surname,
     };
     const user = await User.create(newUser);
     return res.status(201).send(user);

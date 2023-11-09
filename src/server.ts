@@ -18,7 +18,7 @@ mongoose
   .then(() => {
     console.log("Application successfully connected to the Database");
 
-    app.use(instagramRouter);
+    // app.use(instagramRouter);
     app.use(authRoute);
 
     app.listen(port, () => {

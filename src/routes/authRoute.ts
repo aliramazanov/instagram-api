@@ -2,7 +2,6 @@ import express from "express";
 import passport from "passport";
 import bcrypt from "bcrypt";
 import { User } from "../models/userModel";
-import jwt from "jsonwebtoken";
 
 const authRoute = express.Router();
 
@@ -13,7 +12,7 @@ authRoute.post("/api/register", async (req, res) => {
       username: req.body.username,
       password: hashedPassword,
     });
-    
+
     await newUser.save();
     res.status(201).send("User registered successfully");
   } catch (error) {
