@@ -18,8 +18,8 @@ mongoose
   .then(() => {
     console.log("Application successfully connected to the Database");
 
-    // app.use(instagramRouter);
     app.use(authRoute);
+    app.use(instagramRouter);
 
     app.listen(port, () => {
       console.log(`Server is up & running on http://${hostname}:${port}.`);
