@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { User } from "../models/userModel";
 import { Post } from "../models/postModel";
+import { protect } from "../middleware/authMiddlevare";
 
 const instagramRouter = Router();
 
@@ -52,30 +53,38 @@ instagramRouter.delete("/api/:id", async (req: Request, res: Response) => {
   }
 });
 
-instagramRouter.post("/api/:id", async (req: Request, res: Response) => {
-  try {
-    const userId = req.params.id;
+instagramRouter.post(
+  "/api/posts",
+  protect,
+  async (req: Request, res: Response) => {
 
-    const newPost = new Post({
-      user: userId,
-      title: req.body.title,
-      postUrl: req.body.url,
-    });
+    try {
+     
+      
+      //@ts-ignore
+      const { id } = req.user;
 
-    const savedPost = await newPost.save();
+      const newPost = new Post({
+        user: id,
+        title: req.body.title,
+        postUrl: req.body.url,
+      });
 
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      { $push: { posts: savedPost._id } },
-      { new: true }
-    );
+      const savedPost = await newPost.save();
 
-    console.log(`Post added to user's posts: ${updatedUser}`);
-    res.status(200).send({ message: "Post created successfully" });
-  } catch (error) {
-    console.error(`Error creating post: ${error}`);
-    res.status(500).send({ message: "An unknown error occurred." });
+      const updatedUser = await User.findByIdAndUpdate(
+        id,
+        { $push: { posts: savedPost._id } },
+        { new: true }
+      );
+
+      console.log(`Post added to user's posts: ${updatedUser}`);
+      res.status(200).send({ message: "Post created successfully" });
+    } catch (error) {
+      console.error(`Error creating post: ${error}`);
+      res.status(500).send({ message: "An unknown error occurred." });
+    }
   }
-});
+);
 
 export default instagramRouter;
