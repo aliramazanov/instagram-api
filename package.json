@@ -1,7 +1,7 @@
 {
-  "name": "headlines-api",
-  "version": "1.1.0",
-  "description": "A news provider API coded in TypeScript",
+  "name": "instagram-api",
+  "version": "0.1.0",
+  "description": "Instagram Clone API",
   "main": "src/server.ts",
   "scripts": {
     "start": "npx nodemon"
