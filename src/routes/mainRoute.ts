@@ -1,7 +1,7 @@
 import { Router, Request, Response } from "express";
 import { User } from "../models/userModel";
 import { Post } from "../models/postModel";
-import { protect } from "../middleware/authMiddlevare";
+import { protect } from "../middleware/authMiddleware";
 
 const instagramRouter = Router();
 
