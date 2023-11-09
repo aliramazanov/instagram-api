@@ -1,0 +1,29 @@
+{
+  "name": "headlines-api",
+  "version": "1.1.0",
+  "description": "A news provider API coded in TypeScript",
+  "main": "src/server.ts",
+  "scripts": {
+    "start": "npx nodemon"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/cors": "^2.8.15",
+    "@types/express": "^4.17.20",
+    "@types/node": "^20.8.9",
+    "dotenv": "^16.3.1",
+    "nodemon": "^3.0.1",
+    "reflect-metadata": "^0.1.13",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.18.2",
+    "mongodb": "^5.9.1",
+    "mongoose": "^8.0.0",
+    "pg": "^8.11.3",
+    "typeorm": "^0.3.17"
+  }
+}

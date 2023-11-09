@@ -1,0 +1,12 @@
+# Ignore Node.js specific files and directories
+node_modules
+npm-debug.log
+
+# Ignore log files
+*.log
+
+# Ignore environment-specific .env files
+.env
+
+# Ignore Visual Studio Code settings
+.vscode/
