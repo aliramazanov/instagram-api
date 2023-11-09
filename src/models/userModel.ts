@@ -1,6 +1,8 @@
 import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
+  id: mongoose.Schema.Types.ObjectId,
+
   username: {
     type: String,
     required: true,
@@ -17,6 +19,12 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: false,
   },
+  posts: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Post",
+    },
+  ],
 });
 
 export const User = mongoose.model("user", userSchema);
