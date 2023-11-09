@@ -1,18 +1,10 @@
-import express, { Request, Response } from "express";
+import express from "express";
 import passport from "passport";
 import bcrypt from "bcrypt";
 import { User } from "../models/userModel";
 import jwt from "jsonwebtoken";
 
 const authRoute = express.Router();
-
-const signToken = (id: string) => {
-  const access = jwt.sign({ id }, process.env.SECRET_KEY as "", {
-    expiresIn: "7d",
-  });
-
-  return access;
-};
 
 authRoute.post("/api/register", async (req, res) => {
   try {
@@ -30,17 +22,8 @@ authRoute.post("/api/register", async (req, res) => {
   }
 });
 
-authRoute.post(
-  "/api/login",
-  passport.authenticate("local"),
-  (req: Request, res: Response) => {
-    const { id }: any = req.user;
-    const token = signToken(id);
-    res.status(200).json({
-      status: "sucess",
-      token,
-    });
-  }
-);
+authRoute.post("/api/login", passport.authenticate("local"), (req, res) => {
+  res.send("Login successful");
+});
 
 export default authRoute;
