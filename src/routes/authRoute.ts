@@ -37,7 +37,7 @@ authRoute.post(
     const { id }: any = req.user;
     const token = signToken(id);
     res.status(200).json({
-      status: "sucess",
+      status: "Successfully logged in",
       token,
     });
   }
