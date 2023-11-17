@@ -5,7 +5,8 @@
   "main": "src/server.ts",
   "scripts": {
     "dev": "npx nodemon",
-    "start": "node dist/server.js"
+    "start": "node dist/server.js",
+    "build": "npm install -g typescript && tsc"
   },
   "keywords": [],
   "author": "",
@@ -37,7 +38,6 @@
     "passport-local": "^1.0.0",
     "pg": "^8.11.3",
     "ts-node": "^10.9.1",
-    "tsc": "^2.0.4",
     "typeorm": "^0.3.17"
   }
 }

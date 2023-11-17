@@ -57,10 +57,7 @@ instagramRouter.post(
   "/api/posts",
   protect,
   async (req: Request, res: Response) => {
-
     try {
-     
-      
       //@ts-ignore
       const { id } = req.user;
 
