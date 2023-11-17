@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 const authRoute = express.Router();
 
 const signToken = (id: string) => {
-  const access = jwt.sign({ id }, process.env.SECRET_KEY as "", {
+  const access = jwt.sign({ id }, process.env.SECRET_KEY as string, {
     expiresIn: "7d",
   });
 
