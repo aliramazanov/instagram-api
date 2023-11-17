@@ -5,7 +5,8 @@
   "main": "src/server.ts",
   "scripts": {
     "start": "npx nodemon",
-    "climb": "ts-node src/server.ts"
+    "climb": "ts-node src/server.ts",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
