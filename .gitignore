@@ -1,6 +1,7 @@
 # Ignore Node.js specific files and directories
 node_modules
 npm-debug.log
+dist
 
 # Ignore log files
 *.log
@@ -10,3 +11,4 @@ npm-debug.log
 
 # Ignore Visual Studio Code settings
 .vscode/
+

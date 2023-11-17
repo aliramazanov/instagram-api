@@ -4,8 +4,8 @@
   "description": "Instagram Clone API",
   "main": "src/server.ts",
   "scripts": {
-    "start": "npx nodemon",
-    "climb": "ts-node src/server.ts",
+    "dev": "npx nodemon",
+    "start": "node dist/server.js",
     "build": "tsc"
   },
   "keywords": [],
