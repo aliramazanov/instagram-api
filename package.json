@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "npx nodemon",
     "start": "node dist/server.js",
-    "build": "npm install -g typescript && tsc"
+    "build": "npm install & npm install -g typescript && tsc"
   },
   "keywords": [],
   "author": "",
