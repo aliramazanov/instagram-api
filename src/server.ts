@@ -29,5 +29,3 @@ mongoose
     console.error("Error connecting to MongoDB:", error);
     process.exit(1);
   });
-
-// yes
