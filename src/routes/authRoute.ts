@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import passport from "passport";
 import bcrypt from "bcrypt";
 import { User } from "../models/userModel";
@@ -38,13 +38,19 @@ authRoute.post("/api/register", async (req, res) => {
 
 authRoute.post(
   "/api/login",
-  passport.authenticate("local"),
+  passport.authenticate("local", { failWithError: true }),
   (req: Request, res: Response) => {
     const { id }: any = req.user;
     const token = signToken(id);
     res.status(200).json({
       status: "Successfully logged in",
       token,
+    });
+  },
+  (err: any, req: Request, res: Response, next: NextFunction) => {
+    res.status(401).json({
+      status: "Authentication failed",
+      error: err.message,
     });
   }
 );
