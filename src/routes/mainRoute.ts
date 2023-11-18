@@ -5,7 +5,7 @@ import { protect } from "../middleware/authMiddleware";
 
 const instagramRouter = Router();
 
-instagramRouter.get("/api", async (req: Request, res: Response) => {
+instagramRouter.get("/api/users", async (req: Request, res: Response) => {
   try {
     const allUsers = await User.find({});
     res.send(allUsers);
@@ -25,7 +25,7 @@ instagramRouter.get("/api/posts/:id", async (req: Request, res: Response) => {
   }
 });
 
-instagramRouter.post("/api", async (req: Request, res: Response) => {
+instagramRouter.post("/api/users", async (req: Request, res: Response) => {
   try {
     const newUser = {
       username: req.body.username,
@@ -39,19 +39,22 @@ instagramRouter.post("/api", async (req: Request, res: Response) => {
   }
 });
 
-instagramRouter.delete("/api/:id", async (req: Request, res: Response) => {
-  try {
-    const { id } = req.params;
-    const result = await User.findByIdAndDelete(id);
-    if (!result) {
-      return res.status(404).json({ message: "User has not been found" });
+instagramRouter.delete(
+  "/api/users/:id",
+  async (req: Request, res: Response) => {
+    try {
+      const { id } = req.params;
+      const result = await User.findByIdAndDelete(id);
+      if (!result) {
+        return res.status(404).json({ message: "User has not been found" });
+      }
+      return res.status(200).send({ message: "User has been deleted" });
+    } catch (error) {
+      console.log(error);
+      res.status(500).send({ message: "An unknown error occurred." });
     }
-    return res.status(200).send({ message: "User has been deleted" });
-  } catch (error) {
-    console.log(error);
-    res.status(500).send({ message: "An unknown error occurred." });
   }
-});
+);
 
 instagramRouter.post(
   "/api/posts",
