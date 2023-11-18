@@ -3,8 +3,10 @@ import passport from "passport";
 import bcrypt from "bcrypt";
 import { User } from "../models/userModel";
 import jwt from "jsonwebtoken";
+import cors from "cors";
 
 const authRoute = express.Router();
+authRoute.use(cors());
 
 const signToken = (id: string) => {
   const access = jwt.sign({ id }, process.env.SECRET_KEY as string, {
