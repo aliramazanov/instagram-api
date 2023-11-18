@@ -28,9 +28,11 @@ authRoute.post("/api/register", async (req, res) => {
 
     await newUser.save();
     res.status(201).send("User registered successfully");
-  } catch (error) {
+  } catch (error: any) {
     console.error("Registration error:", error);
-    res.status(500).send("Registration failed");
+    res
+      .status(500)
+      .json({ error: "Registration failed", details: error.message });
   }
 });
 

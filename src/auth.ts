@@ -6,6 +6,7 @@ import { Strategy as LocalStrategy } from "passport-local";
 import { User } from "./models/userModel";
 
 const app = express();
+app.use(express.json());
 
 export const configureAuthentication = () => {
   app.use(
