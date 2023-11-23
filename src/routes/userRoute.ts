@@ -2,34 +2,60 @@ import { Router, Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { User } from "../models/userModel";
-
+import dotenv from "dotenv";
+dotenv.config();
 const userRouter = Router();
 
 // The request for searching and finding users based on params:
 
-userRouter.get("/api/users/:username", async (req: Request, res: Response) => {
+userRouter.get("/api/users", async (req: Request, res: Response) => {
   try {
-    const { username } = req.params;
+    const authHeader = req.headers.authorization;
+    const token = authHeader && authHeader.split(" ")[1];
 
-    if (!username || typeof username !== "string") {
-      return res.status(400).send({ message: "Invalid username parameter" });
+    if (!token) {
+      return res.status(401).send({ message: "No token provided" });
     }
 
-    if (username.trim() === "") {
-      return res.status(400).send({ message: "Username cannot be empty" });
-    }
+    jwt.verify(
+      token,
+      process.env.JWT_SECRET || "yoursectretkey",
+      async (err, decoded) => {
+        if (err) {
+          return res
+            .status(500)
+            .send({ message: "Failed to authenticate token" });
+        }
 
-    const matchingUsers = await User.find(
-      { username: new RegExp(username, "i") },
-      "username"
+        if (!decoded || typeof decoded !== "object") {
+          return res.status(401).send({ message: "Invalid token" });
+        }
+
+        const username = decoded.username;
+
+        if (!username || typeof username !== "string") {
+          return res
+            .status(400)
+            .send({ message: "Invalid username parameter" });
+        }
+
+        if (username.trim() === "") {
+          return res.status(400).send({ message: "Username cannot be empty" });
+        }
+
+        const matchingUsers = await User.find(
+          { username: new RegExp(username, "i") },
+          "username"
+        );
+
+        if (matchingUsers.length === 0) {
+          return res.status(404).send({ message: "No matching users found" });
+        }
+
+        const usernames = matchingUsers.map((user) => user.username);
+        res.send(usernames);
+      }
     );
-
-    if (matchingUsers.length === 0) {
-      return res.status(404).send({ message: "No matching users found" });
-    }
-
-    const usernames = matchingUsers.map((user) => user.username);
-    res.send(usernames);
   } catch (error) {
     console.error(error);
     res.status(500).send({ message: "An unknown error occurred." });
