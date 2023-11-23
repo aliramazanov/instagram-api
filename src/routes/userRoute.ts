@@ -106,23 +106,26 @@ userRouter.patch(
   }
 );
 
-// The request for seleting your own account based on token and after password validation
+// The request for deleting your own account after password validation
 
 userRouter.delete("/api/users", async (req: Request, res: Response) => {
   try {
     const userId = (req.user as any)?.id;
-    const { password } = req.body;
 
-    if (!userId || !password) {
-      return res
-        .status(401)
-        .send({ message: "User not authenticated or password missing" });
+    if (!userId) {
+      return res.status(401).send({ message: "User not authenticated" });
     }
 
     const user = await User.findById(userId);
 
     if (!user) {
       return res.status(404).json({ message: "User not found" });
+    }
+
+    const { password } = req.body;
+
+    if (!password) {
+      return res.status(401).json({ message: "Password missing" });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
