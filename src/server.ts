@@ -4,6 +4,8 @@ import mongoose from "mongoose";
 import authRoute from "./routes/authRoute";
 import instagramRouter from "./routes/mainRoute";
 import { configureAuthentication } from "./auth";
+import postRouter from "./routes/postRoute";
+import userRouter from "./routes/userRoute";
 
 const app = configureAuthentication();
 app.use(express.json());
@@ -19,10 +21,12 @@ mongoose
     console.log("Application successfully connected to the Database");
 
     app.use(authRoute);
-    app.use(instagramRouter);
+    app.use(userRouter);
+    app.use(postRouter);
+    // app.use(instagramRouter);
 
     app.listen(port, () => {
-      console.log(`Server is up & running on http://${hostname}:${port}.`);
+      console.log(`Server is up & running on http://${hostname}:${port}`);
     });
   })
   .catch((error) => {

@@ -16,7 +16,7 @@ const signToken = (id: string) => {
   return access;
 };
 
-authRoute.post("/api/register", async (req, res) => {
+authRoute.post("/api/users/register", async (req, res) => {
   try {
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
     const newUser = new User({
@@ -37,7 +37,7 @@ authRoute.post("/api/register", async (req, res) => {
 });
 
 authRoute.post(
-  "/api/login",
+  "/api/users/login",
   passport.authenticate("local", { failWithError: true }),
   (req: Request, res: Response) => {
     const { id }: any = req.user;

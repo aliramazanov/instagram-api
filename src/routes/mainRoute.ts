@@ -5,7 +5,7 @@ import { protect } from "../middleware/authMiddleware";
 
 const instagramRouter = Router();
 
-instagramRouter.get("/api/users", async (req: Request, res: Response) => {
+instagramRouter.get("/api/test/users", async (req: Request, res: Response) => {
   try {
     const allUsers = await User.find({});
     res.send(allUsers);
@@ -15,17 +15,20 @@ instagramRouter.get("/api/users", async (req: Request, res: Response) => {
   }
 });
 
-instagramRouter.get("/api/posts/:id", async (req: Request, res: Response) => {
-  try {
-    const post = await Post.findById(req.params.id);
-    res.send(post);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ message: "An unknown error occurred." });
+instagramRouter.get(
+  "/api/test/posts/:id",
+  async (req: Request, res: Response) => {
+    try {
+      const post = await Post.findById(req.params.id);
+      res.send(post);
+    } catch (error) {
+      console.error(error);
+      res.status(500).send({ message: "An unknown error occurred." });
+    }
   }
-});
+);
 
-instagramRouter.post("/api/users", async (req: Request, res: Response) => {
+instagramRouter.post("/api/test/users", async (req: Request, res: Response) => {
   try {
     const newUser = {
       username: req.body.username,
@@ -40,7 +43,7 @@ instagramRouter.post("/api/users", async (req: Request, res: Response) => {
 });
 
 instagramRouter.delete(
-  "/api/users/:id",
+  "/api/test/users/:id",
   async (req: Request, res: Response) => {
     try {
       const { id } = req.params;
@@ -57,12 +60,11 @@ instagramRouter.delete(
 );
 
 instagramRouter.post(
-  "/api/posts",
+  "/api/test/posts",
   protect,
   async (req: Request, res: Response) => {
     try {
-      //@ts-ignore
-      const { id } = req.user;
+      const { id } = req.user as { id: any };
 
       const newPost = new Post({
         user: id,
