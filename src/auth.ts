@@ -47,13 +47,14 @@ export const configureAuthentication = () => {
     done(null, user._id);
   });
 
-  passport.deserializeUser((id, done) => {
-    User.findById(
-      id,
-      (err: any, user: boolean | Express.User | null | undefined) => {
-        done(err, user);
-      }
-    );
+  passport.deserializeUser(async (id, done) => {
+    try {
+      const user = await User.findById(id).exec();
+      done(null, user);
+    } catch (err: Error | any) {
+      console.error(`Error in deserializeUser: ${err.message}`);
+      done(err, null);
+    }
   });
 
   return app;
