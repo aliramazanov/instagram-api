@@ -2,10 +2,10 @@ import dotenv from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
 import authRoute from "./routes/authRoute";
-import instagramRouter from "./routes/mainRoute";
 import { configureAuthentication } from "./auth";
 import postRouter from "./routes/postRoute";
 import userRouter from "./routes/userRoute";
+import cors from "cors";
 
 const app = configureAuthentication();
 app.use(express.json());
@@ -20,6 +20,7 @@ mongoose
   .then(() => {
     console.log("Application successfully connected to the Database");
 
+    app.use(cors);
     app.use(authRoute);
     app.use(userRouter);
     app.use(postRouter);
