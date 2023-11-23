@@ -57,4 +57,18 @@ postRouter.post("/api/posts", protect, async (req: Request, res: Response) => {
   }
 });
 
+postRouter.delete("/api/posts/:id", async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    const result = await Post.findByIdAndDelete(id);
+    if (!result) {
+      return res.status(404).json({ message: "Post has not been found" });
+    }
+    return res.status(200).send({ message: "Post has been deleted" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ message: "An unknown error occurred." });
+  }
+});
+
 export default postRouter;
