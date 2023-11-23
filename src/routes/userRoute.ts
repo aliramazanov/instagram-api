@@ -29,7 +29,6 @@ userRouter.get("/api/users/:username", async (req: Request, res: Response) => {
     }
 
     const usernames = matchingUsers.map((user) => user.username);
-
     res.send(usernames);
   } catch (error) {
     console.error(error);
