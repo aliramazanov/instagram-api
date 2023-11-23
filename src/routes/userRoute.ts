@@ -32,7 +32,7 @@ userRouter.get("/api/users", async (req: Request, res: Response) => {
     }
 
     const username = authenticatedUser.username;
-    res.send({ username });
+    res.send({ username, userId: decodedToken.userId });
   } catch (error) {
     console.error(error);
     res.status(500).send({ message: "An unknown error occurred." });
