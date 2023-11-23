@@ -1,5 +1,7 @@
 import { Request, Response, Router } from "express";
 import { Post } from "../models/postModel";
+import { protect } from "../middleware/authMiddleware";
+import { User } from "../models/userModel";
 
 const postRouter = Router();
 
@@ -16,6 +18,41 @@ postRouter.get("/api/posts", async (req: Request, res: Response) => {
     res.send(allPosts);
   } catch (error) {
     console.error(`Error fetching posts: ${error}`);
+    res.status(500).send({ message: "An unknown error occurred." });
+  }
+});
+
+postRouter.post("/api/posts", protect, async (req: Request, res: Response) => {
+  try {
+    const { id } = req.user as { id: any };
+    const { title, url } = req.body;
+
+    if (!title || !url) {
+      return res.status(400).send({ message: "Title and URL are required." });
+    }
+
+    const newPost = new Post({
+      user: id,
+      title,
+      postUrl: url,
+    });
+
+    const savedPost = await newPost.save();
+
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { $push: { posts: savedPost._id } },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      throw new Error("User not found");
+    }
+
+    console.log(`Post added to user's posts: ${updatedUser}`);
+    res.status(200).send({ message: "Post created successfully" });
+  } catch (error) {
+    console.error(`Error creating post: ${error}`);
     res.status(500).send({ message: "An unknown error occurred." });
   }
 });
