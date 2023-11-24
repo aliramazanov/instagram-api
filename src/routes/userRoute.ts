@@ -6,9 +6,21 @@ import dotenv from "dotenv";
 dotenv.config();
 const userRouter = Router();
 
-// The request for searching and finding users based on ID decoded from Token:
+// The request for searching and finding all users:
 
 userRouter.get("/api/users", async (req: Request, res: Response) => {
+  try {
+    const allUsers = await User.find({}, "username");
+
+    res.send({ users: allUsers });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({ message: "An unknown error occurred." });
+  }
+});
+
+// The request for finding single user based on token:
+userRouter.get("/api/users/user", async (req: Request, res: Response) => {
   try {
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(" ")[1];
@@ -17,22 +29,30 @@ userRouter.get("/api/users", async (req: Request, res: Response) => {
       return res.status(401).send({ message: "No token provided" });
     }
 
-    const decodedToken = jwt.verify(
-      token,
-      process.env.JWT_SECRET || "yoursectretkey"
-    ) as { userId: string };
+    try {
+      const decodedToken = jwt.verify(
+        token,
+        process.env.JWT_SECRET || "yoursecretkey"
+      ) as { userId: string };
 
-    const authenticatedUser = await User.findById(
-      decodedToken.userId,
-      "username"
-    );
+      const authenticatedUser = await User.findById(
+        decodedToken.userId,
+        "username"
+      );
 
-    if (!authenticatedUser) {
-      return res.status(404).send({ message: "Authenticated user not found" });
+      if (!authenticatedUser) {
+        return res
+          .status(404)
+          .send({ message: "Authenticated user not found" });
+      }
+
+      const username = authenticatedUser.username;
+      res.send({ username, userId: decodedToken.userId });
+    } catch (error) {
+      // Handle invalid token
+      console.error("Invalid token:", error);
+      res.status(401).send({ message: "Invalid token" });
     }
-
-    const username = authenticatedUser.username;
-    res.send({ username, userId: decodedToken.userId });
   } catch (error) {
     console.error(error);
     res.status(500).send({ message: "An unknown error occurred." });
