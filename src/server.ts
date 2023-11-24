@@ -22,7 +22,6 @@ mongoose
     app.use(authRoute);
     app.use(userRouter);
     app.use(postRouter);
-    // app.use(instagramRouter);
 
     app.listen(port, () => {
       console.log(`Server is up & running on http://${hostname}:${port}`);
