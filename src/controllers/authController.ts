@@ -4,8 +4,8 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { User } from "../models/userModel";
 
-const signToken = (id: string) => {
-  const access = jwt.sign({ id }, process.env.SECRET_KEY as string, {
+const signToken = (id: string, username: string) => {
+  const access = jwt.sign({ id, username }, process.env.SECRET_KEY as string, {
     expiresIn: "7d",
   });
 
@@ -41,8 +41,8 @@ export const loginUser = (req: Request, res: Response, next: NextFunction) => {
     req,
     res,
     async () => {
-      const { id }: any = req.user;
-      const token = signToken(id);
+      const { id, username }: any = req.user;
+      const token = signToken(id, username);
       res.status(200).json({
         status: "Successfully logged in",
         token,

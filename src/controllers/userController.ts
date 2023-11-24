@@ -1,6 +1,15 @@
 import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import { User } from "../models/userModel";
+import jwt from "jsonwebtoken";
+
+import dotenv from "dotenv";
+dotenv.config();
+
+interface DecodedToken {
+  id: string;
+  username: string;
+}
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
@@ -13,18 +22,24 @@ export const getAllUsers = async (req: Request, res: Response) => {
 };
 
 export const getAuthenticatedUser = async (req: Request, res: Response) => {
-  if (!req.user || !("_id" in req.user)) {
-    res.status(404).json({ error: "User not found" });
+  let token = "";
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    token = req.headers.authorization.split(" ")[1];
+  } else {
+    res.status(404).json({ error: "error" });
     return;
   }
-
-  const user = await User.findById(req.user._id);
-
-  if (user) {
-    res.status(200).json({ username: user.username });
-  } else {
-    res.status(404).json({ error: "User not found" });
-  }
+  const decodedToken = jwt.verify(
+    token,
+    process.env.SECRET_KEY || ""
+  ) as DecodedToken;
+  res
+    .status(200)
+    .json({ id: decodedToken.id, username: decodedToken.username });
+  return;
 };
 
 export const updateUser = async (req: Request, res: Response) => {
