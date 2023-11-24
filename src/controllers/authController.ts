@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { User } from "../models/userModel";
 
-const signToken = (id: string, username: string) => {
+export const signToken = (id: string, username: string) => {
   const access = jwt.sign({ id, username }, process.env.SECRET_KEY as string, {
     expiresIn: "7d",
   });

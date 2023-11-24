@@ -2,7 +2,7 @@ import bcrypt from "bcrypt";
 import { Request, Response } from "express";
 import { User } from "../models/userModel";
 import jwt from "jsonwebtoken";
-
+import { signToken } from "./authController";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -44,11 +44,7 @@ export const getAuthenticatedUser = async (req: Request, res: Response) => {
 
 export const updateUser = async (req: Request, res: Response) => {
   try {
-    const { username } = req.params;
-
-    console.log("Updating user with username:", username);
-
-    const { username: newUsername, password } = req.body;
+    const { username, newUsername, password } = req.body;
 
     if (!newUsername || typeof newUsername !== "string") {
       return res
@@ -87,7 +83,8 @@ export const updateUser = async (req: Request, res: Response) => {
     }
 
     console.log("User updated successfully");
-    return res.status(200).send(updatedUser);
+    const newToken = signToken(updatedUser.id, updatedUser.username);
+    return res.status(200).send({ updatedUser: updatedUser, token: newToken });
   } catch (error: Error | any) {
     console.error(error);
 
