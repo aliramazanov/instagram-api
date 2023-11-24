@@ -5,18 +5,16 @@ import bcrypt from "bcrypt";
 import { Strategy as LocalStrategy } from "passport-local";
 import { User } from "./models/userModel";
 
-const app = express();
-app.use(express.json());
-
-export const configureAuthentication = () => {
+export const configureAuthentication = (app: express.Application) => {
   app.use(
     session({
       secret: "instagram-passport-pass",
       resave: false,
       saveUninitialized: false,
-    } as any)
+    })
   );
 
+  app.use(express.json());
   app.use(passport.initialize());
   app.use(passport.session());
 
@@ -27,11 +25,7 @@ export const configureAuthentication = () => {
         try {
           const user = await User.findOne({ username }).exec();
 
-          if (!user) {
-            return done(null, false);
-          }
-
-          if (!bcrypt.compareSync(password, user.password)) {
+          if (!user || !bcrypt.compareSync(password, user.password)) {
             return done(null, false);
           }
 

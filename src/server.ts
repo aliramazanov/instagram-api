@@ -1,22 +1,22 @@
 import dotenv from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
-import { configureAuthentication } from "./auth";
 import authRoute from "./routes/authRoute";
 import postRouter from "./routes/postRoute";
 import userRouter from "./routes/userRoute";
+import { configureAuthentication } from "./auth";
 
-const app = configureAuthentication();
-app.use(express.json());
 dotenv.config();
 
-const port: number = parseInt(process.env.PORT || "4000", 10);
-const hostname: string = process.env.HOST || "localhost";
-const uri = process.env.URI || "";
+const startServer = async () => {
+  const app = configureAuthentication(express());
 
-mongoose
-  .connect(uri)
-  .then(() => {
+  const port: number = parseInt(process.env.PORT || "4000", 10);
+  const hostname: string = process.env.HOST || "localhost";
+  const uri = process.env.URI || "";
+
+  try {
+    await mongoose.connect(uri);
     console.log("Application successfully connected to the Database");
 
     app.use(authRoute);
@@ -26,8 +26,10 @@ mongoose
     app.listen(port, () => {
       console.log(`Server is up & running on http://${hostname}:${port}`);
     });
-  })
-  .catch((error) => {
+  } catch (error) {
     console.error("Error connecting to MongoDB:", error);
     process.exit(1);
-  });
+  }
+};
+
+startServer();
