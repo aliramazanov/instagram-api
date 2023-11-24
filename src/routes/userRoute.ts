@@ -1,6 +1,6 @@
 import { Router, Request, Response } from "express";
 import bcrypt from "bcrypt";
-import jwt, { JwtPayload } from "jsonwebtoken";
+import jwt, { TokenExpiredError } from "jsonwebtoken";
 import { User } from "../models/userModel";
 import dotenv from "dotenv";
 dotenv.config();
@@ -49,9 +49,13 @@ userRouter.get("/api/users/user", async (req: Request, res: Response) => {
       const username = authenticatedUser.username;
       res.send({ username, userId: decodedToken.userId });
     } catch (error) {
-      // Handle invalid token
-      console.error("Invalid token:", error);
-      res.status(401).send({ message: "Invalid token" });
+      if (error instanceof TokenExpiredError) {
+        console.error("Expired token:", error);
+        res.status(401).send({ message: "Token expired" });
+      } else {
+        console.error("Invalid token:", error);
+        res.status(401).send({ message: "Invalid token" });
+      }
     }
   } catch (error) {
     console.error(error);
