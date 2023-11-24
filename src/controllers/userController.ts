@@ -1,6 +1,5 @@
-import { Request, Response } from "express";
 import bcrypt from "bcrypt";
-import jwt, { TokenExpiredError } from "jsonwebtoken";
+import { Request, Response } from "express";
 import { User } from "../models/userModel";
 
 export const getAllUsers = async (req: Request, res: Response) => {
@@ -14,45 +13,17 @@ export const getAllUsers = async (req: Request, res: Response) => {
 };
 
 export const getAuthenticatedUser = async (req: Request, res: Response) => {
-  try {
-    const authHeader = req.headers.authorization;
-    const token = authHeader && authHeader.split(" ")[1];
+  if (!req.user || !("_id" in req.user)) {
+    res.status(404).json({ error: "User not found" });
+    return;
+  }
 
-    if (!token) {
-      return res.status(401).send({ message: "No token provided" });
-    }
+  const user = await User.findById(req.user._id);
 
-    try {
-      const decodedToken = jwt.verify(
-        token,
-        process.env.JWT_SECRET || "yoursecretkey"
-      ) as { userId: string };
-
-      const authenticatedUser = await User.findById(
-        decodedToken.userId,
-        "username"
-      );
-
-      if (!authenticatedUser) {
-        return res
-          .status(404)
-          .send({ message: "Authenticated user not found" });
-      }
-
-      const username = authenticatedUser.username;
-      res.send({ username, userId: decodedToken.userId });
-    } catch (error) {
-      if (error instanceof TokenExpiredError) {
-        console.error("Expired token:", error);
-        res.status(401).send({ message: "Token expired" });
-      } else {
-        console.error("Invalid token:", error);
-        res.status(401).send({ message: "Invalid token" });
-      }
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).send({ message: "An unknown error occurred." });
+  if (user) {
+    res.status(200).json({ username: user.username });
+  } else {
+    res.status(404).json({ error: "User not found" });
   }
 };
 
