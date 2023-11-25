@@ -23,24 +23,41 @@ export const getAllUsers = async (req: Request, res: Response) => {
 };
 
 export const getAuthenticatedUser = async (req: Request, res: Response) => {
-  let token = "";
-  if (
-    req.headers.authorization &&
-    req.headers.authorization.startsWith("Bearer")
-  ) {
-    token = req.headers.authorization.split(" ")[1];
-  } else {
-    res.status(404).json({ error: "error" });
-    return;
+  try {
+    let token = "";
+
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer")
+    ) {
+      token = req.headers.authorization.split(" ")[1];
+    } else {
+      res.status(404).json({ error: "error" });
+      return;
+    }
+
+    const decodedToken = jwt.verify(
+      token,
+      process.env.SECRET_KEY || ""
+    ) as DecodedToken;
+
+    const user = await User.findById(decodedToken.id);
+
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    res.status(200).json({
+      id: user._id,
+      username: user.username,
+      fullName: user.fullname,
+      email: user.email,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "An error occurred" });
   }
-  const decodedToken = jwt.verify(
-    token,
-    process.env.SECRET_KEY || ""
-  ) as DecodedToken;
-  res
-    .status(200)
-    .json({ id: decodedToken.id, username: decodedToken.username });
-  return;
 };
 
 export const updateUsername = async (req: Request, res: Response) => {
