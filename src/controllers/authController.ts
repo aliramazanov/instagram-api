@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import passport from "passport";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import * as jwt from "jsonwebtoken";
 import { User } from "../models/userModel";
 
 export const signToken = (id: string, username: string) => {
