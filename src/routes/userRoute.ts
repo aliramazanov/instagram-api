@@ -2,15 +2,21 @@ import { Router } from "express";
 import {
   getAllUsers,
   getAuthenticatedUser,
-  updateUser,
+  updateUsername,
+  updatePassword,
+  updateEmail,
+  updateFullName,
   deleteUser,
 } from "../controllers/userController";
 
 const userRouter = Router();
 
-userRouter.get("/api/users", getAllUsers);
-userRouter.get("/api/users/user", getAuthenticatedUser);
-userRouter.patch("/api/users/modify/", updateUser);
-userRouter.delete("/api/users", deleteUser);
+userRouter.get("/users/all", getAllUsers);
+userRouter.get("/users/signedin", getAuthenticatedUser);
+userRouter.patch("/users/modify/username", updateUsername);
+userRouter.patch("/users/modify/password", updatePassword);
+userRouter.patch("/users/modify/email", updateEmail);
+userRouter.patch("/users/modify/fullname", updateFullName);
+userRouter.delete("/users/delete", deleteUser);
 
 export default userRouter;

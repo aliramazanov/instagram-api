@@ -1,9 +1,10 @@
+import dotenv from "dotenv";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 import { Request, Response } from "express";
 import { User } from "../models/userModel";
-import jwt from "jsonwebtoken";
 import { signToken } from "./authController";
-import dotenv from "dotenv";
+
 dotenv.config();
 
 interface DecodedToken {
@@ -42,9 +43,9 @@ export const getAuthenticatedUser = async (req: Request, res: Response) => {
   return;
 };
 
-export const updateUser = async (req: Request, res: Response) => {
+export const updateUsername = async (req: Request, res: Response) => {
   try {
-    const { username, newUsername, password } = req.body;
+    const { username, newUsername } = req.body;
 
     if (!newUsername || typeof newUsername !== "string") {
       return res
@@ -52,37 +53,172 @@ export const updateUser = async (req: Request, res: Response) => {
         .send({ message: "Invalid username in request body" });
     }
 
-    console.log("Updated user data:", { username: newUsername, password });
-
     const existingUser = await User.findOne({ username });
 
     if (!existingUser) {
-      console.log("User not found");
       return res.status(404).send({ message: "User not found" });
     }
 
     const userId = existingUser._id;
 
-    const updatedUserData: { username: string; password?: string } = {
-      username: newUsername,
-    };
-
-    if (password && typeof password === "string") {
-      updatedUserData.password = password;
-    }
-
     const updatedUser = await User.findOneAndUpdate(
       { username, _id: userId },
-      updatedUserData,
+      { username: newUsername },
       { new: true }
     );
 
     if (!updatedUser) {
-      console.log("User not found");
       return res.status(404).send({ message: "User not found" });
     }
 
-    console.log("User updated successfully");
+    console.log("Username updated successfully");
+    const newToken = signToken(updatedUser.id, updatedUser.username);
+    return res.status(200).send({ updatedUser: updatedUser, token: newToken });
+  } catch (error: Error | any) {
+    console.error(error);
+
+    if (error.name === "ValidationError") {
+      return res
+        .status(400)
+        .send({ message: "Validation error", errors: error.errors });
+    }
+
+    if (error.name === "CastError" && error.kind === "ObjectId") {
+      return res.status(400).send({ message: "Invalid user ID" });
+    }
+
+    console.log("An unknown error occurred");
+    res.status(500).send({ message: "An unknown error occurred." });
+  }
+};
+
+export const updatePassword = async (req: Request, res: Response) => {
+  try {
+    const { username, newPassword } = req.body;
+
+    if (!newPassword || typeof newPassword !== "string") {
+      return res
+        .status(400)
+        .send({ message: "Invalid password in request body" });
+    }
+
+    const existingUser = await User.findOne({ username });
+
+    if (!existingUser) {
+      return res.status(404).send({ message: "User not found" });
+    }
+
+    const userId = existingUser._id;
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+    const updatedUser = await User.findOneAndUpdate(
+      { username, _id: userId },
+      { password: hashedPassword },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).send({ message: "User not found" });
+    }
+
+    console.log("Password updated successfully");
+    const newToken = signToken(updatedUser.id, updatedUser.username);
+    return res.status(200).send({ updatedUser: updatedUser, token: newToken });
+  } catch (error: Error | any) {
+    console.error(error);
+
+    if (error.name === "ValidationError") {
+      return res
+        .status(400)
+        .send({ message: "Validation error", errors: error.errors });
+    }
+
+    if (error.name === "CastError" && error.kind === "ObjectId") {
+      return res.status(400).send({ message: "Invalid user ID" });
+    }
+
+    console.log("An unknown error occurred");
+    res.status(500).send({ message: "An unknown error occurred." });
+  }
+};
+
+export const updateEmail = async (req: Request, res: Response) => {
+  try {
+    const { username, newEmail } = req.body;
+
+    if (!newEmail || typeof newEmail !== "string") {
+      return res.status(400).send({ message: "Invalid email in request body" });
+    }
+
+    const existingUser = await User.findOne({ username });
+
+    if (!existingUser) {
+      return res.status(404).send({ message: "User not found" });
+    }
+
+    const userId = existingUser._id;
+
+    const updatedUser = await User.findOneAndUpdate(
+      { username, _id: userId },
+      { email: newEmail },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).send({ message: "User not found" });
+    }
+
+    console.log("Email updated successfully");
+    const newToken = signToken(updatedUser.id, updatedUser.username);
+    return res.status(200).send({ updatedUser: updatedUser, token: newToken });
+  } catch (error: Error | any) {
+    console.error(error);
+
+    if (error.name === "ValidationError") {
+      return res
+        .status(400)
+        .send({ message: "Validation error", errors: error.errors });
+    }
+
+    if (error.name === "CastError" && error.kind === "ObjectId") {
+      return res.status(400).send({ message: "Invalid user ID" });
+    }
+
+    console.log("An unknown error occurred");
+    res.status(500).send({ message: "An unknown error occurred." });
+  }
+};
+
+export const updateFullName = async (req: Request, res: Response) => {
+  try {
+    const { username, newFullName } = req.body;
+
+    if (!newFullName || typeof newFullName !== "string") {
+      return res
+        .status(400)
+        .send({ message: "Invalid full name in request body" });
+    }
+
+    const existingUser = await User.findOne({ username });
+
+    if (!existingUser) {
+      return res.status(404).send({ message: "User not found" });
+    }
+
+    const userId = existingUser._id;
+
+    const updatedUser = await User.findOneAndUpdate(
+      { username, _id: userId },
+      { fullname: newFullName },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).send({ message: "User not found" });
+    }
+
+    console.log("Full name updated successfully");
     const newToken = signToken(updatedUser.id, updatedUser.username);
     return res.status(200).send({ updatedUser: updatedUser, token: newToken });
   } catch (error: Error | any) {
