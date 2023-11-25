@@ -41,12 +41,19 @@ export const loginUser = (req: Request, res: Response, next: NextFunction) => {
     req,
     res,
     async () => {
-      const { id, username }: any = req.user;
-      const token = signToken(id, username);
-      res.status(200).json({
-        status: "Successfully logged in",
-        token,
-      });
+      if (req.user) {
+        const { id, username }: any = req.user;
+        const token = signToken(id, username);
+        res.status(200).json({
+          status: "Successfully logged in",
+          token,
+        });
+      } else {
+        res.status(500).json({
+          status: "Internal Server Error",
+          error: "User information not available",
+        });
+      }
     },
     (err: any, req: Request, res: Response, next: NextFunction) => {
       res.status(401).json({
@@ -56,3 +63,4 @@ export const loginUser = (req: Request, res: Response, next: NextFunction) => {
     }
   );
 };
+
