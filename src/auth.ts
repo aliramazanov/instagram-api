@@ -4,6 +4,7 @@ import passport from "passport";
 import bcrypt from "bcrypt";
 import { Strategy as LocalStrategy } from "passport-local";
 import { User } from "./models/userModel";
+import cors from "cors";
 
 export const configureAuthentication = (app: express.Application) => {
   app.use(
@@ -15,6 +16,7 @@ export const configureAuthentication = (app: express.Application) => {
   );
 
   app.use(express.json());
+  app.use(cors());
   app.use(passport.initialize());
   app.use(passport.session());
 
