@@ -1,10 +1,9 @@
+import bcrypt from "bcrypt";
 import express from "express";
 import session from "express-session";
 import passport from "passport";
-import bcrypt from "bcrypt";
 import { Strategy as LocalStrategy } from "passport-local";
 import { User } from "./models/userModel";
-import cors from "cors";
 
 export const configureAuthentication = (app: express.Application) => {
   app.use(
@@ -16,15 +15,7 @@ export const configureAuthentication = (app: express.Application) => {
   );
 
   app.use(express.json());
-  app.use(
-    cors({
-      origin: [
-        "http://localhost:5173",
-        "https://instagram-client-abb.vercel.app",
-      ],
-      optionsSuccessStatus: 200,
-    })
-  );
+
   app.use(passport.initialize());
   app.use(passport.session());
 

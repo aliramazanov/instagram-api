@@ -5,6 +5,7 @@ import authRoute from "./routes/authRoute";
 import postRouter from "./routes/postRoute";
 import userRouter from "./routes/userRoute";
 import { configureAuthentication } from "./auth";
+import cors from "cors";
 
 dotenv.config();
 
@@ -18,6 +19,16 @@ const startServer = async () => {
   try {
     await mongoose.connect(uri);
     console.log("Application successfully connected to the Database");
+
+    app.use(
+      cors({
+        origin: [
+          "http://localhost:5173",
+          "https://instagram-client-abb.vercel.app",
+        ],
+        optionsSuccessStatus: 200,
+      })
+    );
 
     app.use(authRoute);
     app.use(userRouter);
