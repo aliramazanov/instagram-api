@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
+import cors from "cors";
 import authRoute from "./routes/authRoute";
 import postRouter from "./routes/postRoute";
 import userRouter from "./routes/userRoute";
@@ -10,6 +11,7 @@ dotenv.config();
 
 const startServer = async () => {
   const app = configureAuthentication(express());
+  app.use(cors());
 
   const port: number = parseInt(process.env.PORT || "4000", 10);
   const hostname: string = process.env.HOST || "localhost";
