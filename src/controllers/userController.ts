@@ -64,15 +64,23 @@ export const updateUsername = async (req: Request, res: Response) => {
   try {
     const { username, newUsername } = req.body;
 
-    if (!newUsername || typeof newUsername !== "string") {
+    console.log("Received updateUsername request", req.body);
+
+    const trimmedUsername = newUsername.trim();
+
+    if (!trimmedUsername || typeof trimmedUsername !== "string") {
+      console.error("Invalid username in request body", trimmedUsername);
       return res
         .status(400)
         .send({ message: "Invalid username in request body" });
     }
 
+    console.log("Processed newUsername", trimmedUsername);
+
     const existingUser = await User.findOne({ username });
 
     if (!existingUser) {
+      console.error("User not found");
       return res.status(404).send({ message: "User not found" });
     }
 
@@ -80,11 +88,12 @@ export const updateUsername = async (req: Request, res: Response) => {
 
     const updatedUser = await User.findOneAndUpdate(
       { username, _id: userId },
-      { username: newUsername },
+      { username: trimmedUsername },
       { new: true }
     );
 
     if (!updatedUser) {
+      console.error("User not found after update");
       return res.status(404).send({ message: "User not found" });
     }
 
@@ -104,8 +113,8 @@ export const updateUsername = async (req: Request, res: Response) => {
       return res.status(400).send({ message: "Invalid user ID" });
     }
 
-    console.log("An unknown error occurred");
-    res.status(500).send({ message: "An unknown error occurred." });
+    console.error("An unknown error occurred");
+    return res.status(500).send({ message: "An unknown error occurred." });
   }
 };
 
