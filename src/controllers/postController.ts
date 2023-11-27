@@ -4,7 +4,7 @@ import { User } from "../models/userModel";
 
 export async function getAllPosts(req: Request, res: Response) {
   try {
-    const allPosts = await Post.find({}, "title postUrl");
+    const allPosts = await Post.find({}, "title postUrl likes");
 
     if (allPosts.length === 0) {
       return res.status(404).send({ message: "No posts found" });
@@ -62,6 +62,34 @@ export async function deletePost(req: Request, res: Response) {
     return res.status(200).send({ message: "Post has been deleted" });
   } catch (error) {
     console.log(error);
+    res.status(500).send({ message: "An unknown error occurred." });
+  }
+}
+
+export async function likePost(req: Request, res: Response) {
+  try {
+    const { postId } = req.params;
+    const { userId } = req.body;
+
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).send({ message: "Post not found" });
+    }
+
+    const userIndex = post.likes.indexOf(userId);
+
+    if (userIndex === -1) {
+      post.likes.push(userId);
+    } else {
+      post.likes.splice(userIndex, 1);
+    }
+
+    await post.save();
+
+    res.status(200).send({ message: "Like toggled successfully", post });
+  } catch (error) {
+    console.error(`Error toggling like: ${error}`);
     res.status(500).send({ message: "An unknown error occurred." });
   }
 }
