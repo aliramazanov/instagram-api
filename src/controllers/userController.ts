@@ -279,18 +279,6 @@ export const deleteUser = async (req: Request, res: Response) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const { password } = req.body;
-
-    if (!password) {
-      return res.status(401).json({ message: "Password missing" });
-    }
-
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-
-    if (!isPasswordValid) {
-      return res.status(401).json({ message: "Invalid password" });
-    }
-
     const deletedUser = await User.findByIdAndDelete(userId);
 
     if (!deletedUser) {
