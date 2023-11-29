@@ -14,11 +14,11 @@ interface DecodedToken {
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
-    const allUsers = await User.find({}, "username");
-    res.send({ users: allUsers });
+    const allUsers = await User.find({}, "_id username email fullname posts");
+    res.status(200).json({ users: allUsers });
   } catch (error) {
     console.error(error);
-    res.status(500).send({ message: "An unknown error occurred." });
+    res.status(500).json({ message: "An unknown error occurred." });
   }
 };
 
