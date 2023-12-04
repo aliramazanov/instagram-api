@@ -1,11 +1,10 @@
 import bcrypt from "bcrypt";
+import dotenv from "dotenv";
 import express from "express";
 import session from "express-session";
 import passport from "passport";
-import dotenv from "dotenv";
-import cookieSession from "cookie-session";
-import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import { Strategy as LocalStrategy } from "passport-local";
 import { User } from "./models/userModel";
 
 dotenv.config();
@@ -55,9 +54,10 @@ export const configureAuthentication = (app: express.Application) => {
   );
 
   app.use(
-    cookieSession({
-      name: "google-auth-session",
-      keys: ["key1", "key2"],
+    session({
+      secret: "oauth-session-secret",
+      resave: false,
+      saveUninitialized: false,
     })
   );
 
