@@ -68,6 +68,7 @@ export const configureAuthentication = (app: express.Application) => {
         clientSecret: clientSecret,
         callbackURL:
           "https://instagram-api-88fv.onrender.com/auth/google/callback",
+        scope: ["profile", "email"],
       },
       async function (accessToken, refreshToken, profile, cb) {
         try {
