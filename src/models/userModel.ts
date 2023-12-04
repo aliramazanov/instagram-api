@@ -29,6 +29,10 @@ const userSchema = new mongoose.Schema({
       ref: "Post",
     },
   ],
+  profilePhoto: {
+    type: String,
+    default: null,
+  },
 });
 
 export const User = mongoose.model("user", userSchema);

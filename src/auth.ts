@@ -3,7 +3,14 @@ import express from "express";
 import session from "express-session";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
+import { Strategy as GoogleStrategy } from "passport-oauth2";
+import dotenv from "dotenv";
 import { User } from "./models/userModel";
+
+dotenv.config();
+
+const clientID = process.env.CLIENT_ID as string;
+const clientSecret = process.env.CILENT_SECRET as string;
 
 export const configureAuthentication = (app: express.Application) => {
   app.use(
@@ -28,6 +35,42 @@ export const configureAuthentication = (app: express.Application) => {
 
           if (!user || !bcrypt.compareSync(password, user.password)) {
             return done(null, false);
+          }
+
+          return done(null, user);
+        } catch (error) {
+          return done(error);
+        }
+      }
+    )
+  );
+
+  passport.use(
+    new GoogleStrategy(
+      {
+        clientID: clientID,
+        clientSecret: clientSecret,
+        authorizationURL: "https://accounts.google.com/o/oauth2/v2/auth",
+        tokenURL: "https://oauth2.googleapis.com/token",
+      },
+      async (
+        accessToken: string,
+        refreshToken: string,
+        profile: any,
+        done: any
+      ) => {
+        try {
+          console.log(`accessToken: ${accessToken}`);
+          console.log(`refreshToken: ${refreshToken}`);
+
+          let user = await User.findOne({ googleId: profile.id }).exec();
+
+          if (!user) {
+            user = new User({
+              googleId: profile.id,
+              username: profile.displayName || profile.emails[0].value,
+            });
+            await user.save();
           }
 
           return done(null, user);

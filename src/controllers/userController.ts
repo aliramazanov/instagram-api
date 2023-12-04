@@ -1,7 +1,7 @@
-import dotenv from "dotenv";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
 import { Request, Response } from "express";
+import jwt from "jsonwebtoken";
 import { User } from "../models/userModel";
 import { signToken } from "./authController";
 
@@ -59,6 +59,7 @@ export const getAuthenticatedUser = async (req: Request, res: Response) => {
     res.status(500).json({ error: "An error occurred" });
   }
 };
+
 
 export const updateUsername = async (req: Request, res: Response) => {
   try {
@@ -262,6 +263,45 @@ export const updatePassword = async (req: Request, res: Response) => {
 
     console.log("An unknown error occurred");
     res.status(500).send({ message: "An unknown error occurred." });
+  }
+};
+
+export const uploadProfilePhoto = async (req: Request, res: Response) => {
+  try {
+    const { username } = req.body;
+
+    const existingUser = await User.findOne({ username });
+
+    if (!existingUser) {
+      return res.status(404).send({ message: "User not found" });
+    }
+
+    const userId = existingUser._id;
+
+    if (req.file) {
+      const base64Image = req.file.buffer.toString("base64");
+
+      const updatedUser = await User.findOneAndUpdate(
+        { username, _id: userId },
+        { profilePhoto: base64Image },
+        { new: true }
+      );
+
+      if (!updatedUser) {
+        return res.status(404).send({ message: "User not found" });
+      }
+
+      console.log("Profile photo uploaded successfully");
+      const newToken = signToken(updatedUser.id, updatedUser.username);
+      return res
+        .status(200)
+        .send({ updatedUser: updatedUser, token: newToken });
+    } else {
+      return res.status(400).send({ message: "No file received" });
+    }
+  } catch (error: any) {
+    console.error(error);
+    return res.status(500).send({ message: "An unknown error occurred." });
   }
 };
 

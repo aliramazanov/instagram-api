@@ -1,9 +1,25 @@
-import express from "express";
+import express, { Request, Response } from "express";
+import passport from "passport";
 import { loginUser, registerUser } from "../controllers/authController";
 
 const authRoute = express.Router();
 
 authRoute.post("/auth/register", registerUser);
 authRoute.post("/auth/login", loginUser);
+
+authRoute.get(
+  "/auth/google",
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+  })
+);
+
+authRoute.get(
+  "/auth/google/callback",
+  passport.authenticate("google", { failureRedirect: "/login" }),
+  (req: Request, res: Response) => {
+    res.redirect("/");
+  }
+);
 
 export default authRoute;
