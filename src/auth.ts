@@ -74,7 +74,10 @@ export const configureAuthentication = (app: express.Application) => {
           }
 
           return done(null, user);
-        } catch (error) {
+        } catch (error: Error | any) {
+          console.error(
+            `Error in Google authentication callback: ${error.message}`
+          );
           return done(error);
         }
       }
