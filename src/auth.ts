@@ -72,6 +72,8 @@ export const configureAuthentication = (app: express.Application) => {
       },
       async function (accessToken, refreshToken, profile, cb) {
         try {
+          const email = profile?.emails?.[0]?.value ?? null;
+
           const existingUser = await User.findOne({ googleId: profile.id });
 
           if (existingUser) {
@@ -79,6 +81,7 @@ export const configureAuthentication = (app: express.Application) => {
           } else {
             const newUser = new User({
               googleId: profile.id,
+              email: email,
             });
 
             const savedUser = await newUser.save();
