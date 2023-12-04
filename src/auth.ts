@@ -33,7 +33,7 @@ export const configureAuthentication = (app: express.Application) => {
         try {
           const user = await User.findOne({ username }).exec();
 
-          if (!user || !bcrypt.compareSync(password, user.password)) {
+          if (!user || !(await bcrypt.compare(password, user.password))) {
             return done(null, false);
           }
 
@@ -50,8 +50,7 @@ export const configureAuthentication = (app: express.Application) => {
       {
         clientID: clientID,
         clientSecret: clientSecret,
-        callbackURL:
-          "https://instagram-api-88fv.onrender.com/auth/google/callback",
+        callbackURL: "https://instagram-api-88fv.onrender.com/auth/google",
       },
       async (
         accessToken: string,
@@ -63,18 +62,21 @@ export const configureAuthentication = (app: express.Application) => {
           console.log(`accessToken: ${accessToken}`);
           console.log(`refreshToken: ${refreshToken}`);
 
+          const username =
+            profile.displayName || (profile.emails && profile.emails[0].value);
+
           let user = await User.findOne({ googleId: profile.id }).exec();
 
           if (!user) {
             user = new User({
               googleId: profile.id,
-              username: profile.displayName || profile.emails[0].value,
+              username: username,
             });
             await user.save();
           }
 
           return done(null, user);
-        } catch (error: Error | any) {
+        } catch (error: any) {
           console.error(
             `Error in Google authentication callback: ${error.message}`
           );
@@ -92,7 +94,7 @@ export const configureAuthentication = (app: express.Application) => {
     try {
       const user = await User.findById(id).exec();
       done(null, user);
-    } catch (err: Error | any) {
+    } catch (err: any) {
       console.error(`Error in deserializeUser: ${err.message}`);
       done(err, null);
     }
