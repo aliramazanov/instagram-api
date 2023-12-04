@@ -4,8 +4,8 @@ import session from "express-session";
 import passport from "passport";
 import dotenv from "dotenv";
 import { Strategy as LocalStrategy } from "passport-local";
-import { User } from "./models/userModel";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import { User } from "./models/userModel";
 
 dotenv.config();
 
@@ -33,7 +33,11 @@ export const configureAuthentication = (app: express.Application) => {
         try {
           const user = await User.findOne({ username }).exec();
 
-          if (!user || !(await bcrypt.compare(password, user.password))) {
+          if (
+            !user ||
+            !user.password ||
+            !bcrypt.compareSync(password, user.password)
+          ) {
             return done(null, false);
           }
 
