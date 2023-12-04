@@ -10,7 +10,9 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: false,
+    required: function (): boolean {
+      return !(this as any).googleId;
+    },
     min: 8,
   },
   email: {
@@ -20,6 +22,10 @@ const userSchema = new mongoose.Schema({
     max: 35,
   },
   fullname: {
+    type: String,
+    required: false,
+  },
+  googleId: {
     type: String,
     required: false,
   },
@@ -35,4 +41,4 @@ const userSchema = new mongoose.Schema({
   },
 });
 
-export const User = mongoose.model("user", userSchema);
+export const User = mongoose.model("User", userSchema);

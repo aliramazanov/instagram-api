@@ -3,6 +3,7 @@ import express from "express";
 import session from "express-session";
 import passport from "passport";
 import dotenv from "dotenv";
+import cookieSession from "cookie-session";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { User } from "./models/userModel";
@@ -49,42 +50,37 @@ export const configureAuthentication = (app: express.Application) => {
     )
   );
 
+  app.use(
+    cookieSession({
+      name: "google-auth-session",
+      keys: ["key1", "key2"],
+    })
+  );
+
   passport.use(
     new GoogleStrategy(
       {
         clientID: clientID,
         clientSecret: clientSecret,
-        callbackURL: "https://instagram-api-88fv.onrender.com/auth/google",
+        callbackURL:
+          "https://instagram-api-88fv.onrender.com/auth/google/callback",
       },
-      async (
-        accessToken: string,
-        refreshToken: string,
-        profile: any,
-        done: any
-      ) => {
+      async function (accessToken, refreshToken, profile, cb) {
         try {
-          console.log(`accessToken: ${accessToken}`);
-          console.log(`refreshToken: ${refreshToken}`);
+          const existingUser = await User.findOne({ googleId: profile.id });
 
-          const username =
-            profile.displayName || (profile.emails && profile.emails[0].value);
-
-          let user = await User.findOne({ googleId: profile.id }).exec();
-
-          if (!user) {
-            user = new User({
+          if (existingUser) {
+            return cb(null, existingUser);
+          } else {
+            const newUser = new User({
               googleId: profile.id,
-              username: username,
             });
-            await user.save();
-          }
 
-          return done(null, user);
-        } catch (error: any) {
-          console.error(
-            `Error in Google authentication callback: ${error.message}`
-          );
-          return done(error);
+            const savedUser = await newUser.save();
+            return cb(null, savedUser);
+          }
+        } catch (err: Error | any) {
+          return cb(err || null, undefined);
         }
       }
     )

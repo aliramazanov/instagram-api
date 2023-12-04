@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import passport from "passport";
 import { loginUser, registerUser } from "../controllers/authController";
 
@@ -9,9 +9,14 @@ authRoute.post("/auth/login", loginUser);
 
 authRoute.get(
   "/auth/google",
-  passport.authenticate("google", {
-    scope: ["profile", "email"],
-  })
+  (req: Request, res: Response, next: NextFunction) => {
+    if (req.isAuthenticated()) {
+      return res.redirect("/");
+    }
+    return passport.authenticate("google", {
+      scope: ["profile", "email"],
+    })(req, res, next);
+  }
 );
 
 authRoute.get(
