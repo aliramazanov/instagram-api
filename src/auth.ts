@@ -32,17 +32,21 @@ export const configureAuthentication = (app: express.Application) => {
       { usernameField: "username", passwordField: "password" },
       async (username: string, password: string, done: any) => {
         try {
-          const user = await User.findOne({ username }).exec();
+          if (username && password) {
+            const user = await User.findOne({ username }).exec();
 
-          if (
-            !user ||
-            !user.password ||
-            !bcrypt.compareSync(password, user.password)
-          ) {
+            if (
+              !user ||
+              !user.password ||
+              !bcrypt.compareSync(password, user.password)
+            ) {
+              return done(null, false);
+            }
+
+            return done(null, user);
+          } else {
             return done(null, false);
           }
-
-          return done(null, user);
         } catch (error) {
           return done(error);
         }
