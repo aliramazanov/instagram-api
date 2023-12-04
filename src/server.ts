@@ -1,9 +1,8 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import mongoose from "mongoose";
 import http from "http";
-import { initializeSocket } from "../src/socket/socket";
+import mongoose from "mongoose";
 import { configureAuthentication } from "./auth";
 import authRoute from "./routes/authRoute";
 import postRouter from "./routes/postRoute";
@@ -24,11 +23,9 @@ const startServer = async () => {
     await mongoose.connect(uri);
 
     console.log("Application successfully connected to the Database");
-    const server = http.createServer(app);
     app.use(authRoute);
     app.use(userRouter);
     app.use(postRouter);
-    const io = initializeSocket(server);
 
     app.listen(port, () => {
       console.log(`Server is up & running on http://${hostname}:${port}`);

@@ -2,9 +2,9 @@ import bcrypt from "bcrypt";
 import express from "express";
 import session from "express-session";
 import passport from "passport";
+import dotenv from "dotenv";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as GoogleStrategy } from "passport-oauth2";
-import dotenv from "dotenv";
 import { User } from "./models/userModel";
 
 dotenv.config();
