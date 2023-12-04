@@ -60,14 +60,13 @@ export const getAuthenticatedUser = async (req: Request, res: Response) => {
   }
 };
 
-
 export const updateUsername = async (req: Request, res: Response) => {
   try {
     const { username, newUsername } = req.body;
 
     console.log("Received updateUsername request", req.body);
 
-    const trimmedUsername = newUsername.trim();
+    const trimmedUsername = newUsername ? newUsername.trim() : "";
 
     if (!trimmedUsername || typeof trimmedUsername !== "string") {
       console.error("Invalid username in request body", trimmedUsername);
@@ -99,7 +98,7 @@ export const updateUsername = async (req: Request, res: Response) => {
     }
 
     console.log("Username updated successfully");
-    const newToken = signToken(updatedUser.id, updatedUser.username);
+    const newToken = signToken(updatedUser.id, updatedUser.username as string);
     return res.status(200).send({ updatedUser: updatedUser, token: newToken });
   } catch (error: Error | any) {
     console.error(error);
@@ -146,7 +145,7 @@ export const updateEmail = async (req: Request, res: Response) => {
     }
 
     console.log("Email updated successfully");
-    const newToken = signToken(updatedUser.id, updatedUser.username);
+    const newToken = signToken(updatedUser.id, updatedUser.username as string);
     return res.status(200).send({ updatedUser: updatedUser, token: newToken });
   } catch (error: Error | any) {
     console.error(error);
@@ -195,7 +194,7 @@ export const updateFullName = async (req: Request, res: Response) => {
     }
 
     console.log("Full name updated successfully");
-    const newToken = signToken(updatedUser.id, updatedUser.username);
+    const newToken = signToken(updatedUser.id, updatedUser.username as string);
     return res.status(200).send({ updatedUser: updatedUser, token: newToken });
   } catch (error: Error | any) {
     console.error(error);
@@ -246,7 +245,7 @@ export const updatePassword = async (req: Request, res: Response) => {
     }
 
     console.log("Password updated successfully");
-    const newToken = signToken(updatedUser.id, updatedUser.username);
+    const newToken = signToken(updatedUser.id, updatedUser.username as string);
     return res.status(200).send({ updatedUser: updatedUser, token: newToken });
   } catch (error: Error | any) {
     console.error(error);
@@ -292,7 +291,10 @@ export const uploadProfilePhoto = async (req: Request, res: Response) => {
       }
 
       console.log("Profile photo uploaded successfully");
-      const newToken = signToken(updatedUser.id, updatedUser.username);
+      const newToken = signToken(
+        updatedUser.id,
+        updatedUser.username as string
+      );
       return res
         .status(200)
         .send({ updatedUser: updatedUser, token: newToken });

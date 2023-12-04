@@ -3,7 +3,9 @@ import mongoose from "mongoose";
 const userSchema = new mongoose.Schema({
   username: {
     type: String,
-    required: false,
+    required: function (): boolean {
+      return !(this as any).googleId;
+    },
     unique: true,
     min: 4,
     max: 20,
