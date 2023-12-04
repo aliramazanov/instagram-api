@@ -10,7 +10,7 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 dotenv.config();
 
 const clientID = process.env.CLIENT_ID as string;
-const clientSecret = process.env.CILENT_SECRET as string;
+const clientSecret = process.env.CLIENT_SECRET as string;
 
 export const configureAuthentication = (app: express.Application) => {
   app.use(
