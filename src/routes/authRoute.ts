@@ -21,9 +21,21 @@ authRoute.get(
 
 authRoute.get(
   "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/login" }),
-  (req: Request, res: Response) => {
-    res.redirect("/");
+  (req: Request, res: Response, next: NextFunction) => {
+    passport.authenticate("google", (err: Error | any, user: string) => {
+      try {
+        if (err) {
+          throw err;
+        }
+
+        if (!user) {
+          return res.redirect("/login");
+        }
+        res.render("user-info-template", { user });
+      } catch (error) {
+        next(error);
+      }
+    })(req, res, next);
   }
 );
 
