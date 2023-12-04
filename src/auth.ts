@@ -4,8 +4,8 @@ import session from "express-session";
 import passport from "passport";
 import dotenv from "dotenv";
 import { Strategy as LocalStrategy } from "passport-local";
-import { Strategy as GoogleStrategy } from "passport-oauth2";
 import { User } from "./models/userModel";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 
 dotenv.config();
 
@@ -50,8 +50,8 @@ export const configureAuthentication = (app: express.Application) => {
       {
         clientID: clientID,
         clientSecret: clientSecret,
-        authorizationURL: "https://accounts.google.com/o/oauth2/v2/auth",
-        tokenURL: "https://oauth2.googleapis.com/token",
+        callbackURL:
+          "https://instagram-api-88fv.onrender.com/auth/google/callback",
       },
       async (
         accessToken: string,
