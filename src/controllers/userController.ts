@@ -167,9 +167,9 @@ export const updateEmail = async (req: Request, res: Response) => {
 
 export const updateFullName = async (req: Request, res: Response) => {
   try {
-    const { username, newFullName } = req.body;
+    const { username, newFullname } = req.body;
 
-    if (!newFullName || typeof newFullName !== "string") {
+    if (!newFullname || typeof newFullname !== "string") {
       return res
         .status(400)
         .send({ message: "Invalid full name in request body" });
@@ -185,7 +185,7 @@ export const updateFullName = async (req: Request, res: Response) => {
 
     const updatedUser = await User.findOneAndUpdate(
       { username, _id: userId },
-      { fullname: newFullName },
+      { fullname: newFullname },
       { new: true }
     );
 
