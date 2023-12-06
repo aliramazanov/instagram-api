@@ -12,8 +12,6 @@ interface DecodedToken {
   username: string;
 }
 
-
-
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
     const allUsers = await User.find({}, "_id username email fullname posts");
@@ -55,6 +53,7 @@ export const getAuthenticatedUser = async (req: Request, res: Response) => {
       username: user.username,
       fullName: user.fullname,
       email: user.email,
+      profilePhoto: user.profilePhoto,
     });
   } catch (error) {
     console.error(error);
@@ -291,7 +290,10 @@ export const uploadProfilePhoto = async (req: Request, res: Response) => {
       }
 
       console.log("Profile photo uploaded successfully");
-      const newToken = signToken(updatedUser.id, updatedUser.username as string);
+      const newToken = signToken(
+        updatedUser.id,
+        updatedUser.username as string
+      );
       return res
         .status(200)
         .send({ updatedUser: updatedUser, token: newToken });
@@ -303,7 +305,6 @@ export const uploadProfilePhoto = async (req: Request, res: Response) => {
     return res.status(500).send({ message: "An unknown error occurred." });
   }
 };
-
 
 export const deleteUser = async (req: Request, res: Response) => {
   try {
