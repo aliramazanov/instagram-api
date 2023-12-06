@@ -12,6 +12,8 @@ interface DecodedToken {
   username: string;
 }
 
+
+
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
     const allUsers = await User.find({}, "_id username email fullname posts");
@@ -267,7 +269,7 @@ export const updatePassword = async (req: Request, res: Response) => {
 
 export const uploadProfilePhoto = async (req: Request, res: Response) => {
   try {
-    const { username } = req.body;
+    const { username, base64Image } = req.body;
 
     const existingUser = await User.findOne({ username });
 
@@ -277,9 +279,7 @@ export const uploadProfilePhoto = async (req: Request, res: Response) => {
 
     const userId = existingUser._id;
 
-    if (req.file) {
-      const base64Image = req.file.buffer.toString("base64");
-
+    if (base64Image) {
       const updatedUser = await User.findOneAndUpdate(
         { username, _id: userId },
         { profilePhoto: base64Image },
@@ -291,21 +291,19 @@ export const uploadProfilePhoto = async (req: Request, res: Response) => {
       }
 
       console.log("Profile photo uploaded successfully");
-      const newToken = signToken(
-        updatedUser.id,
-        updatedUser.username as string
-      );
+      const newToken = signToken(updatedUser.id, updatedUser.username as string);
       return res
         .status(200)
         .send({ updatedUser: updatedUser, token: newToken });
     } else {
-      return res.status(400).send({ message: "No file received" });
+      return res.status(400).send({ message: "No base64Image received" });
     }
   } catch (error: any) {
     console.error(error);
     return res.status(500).send({ message: "An unknown error occurred." });
   }
 };
+
 
 export const deleteUser = async (req: Request, res: Response) => {
   try {
