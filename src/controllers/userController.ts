@@ -22,6 +22,30 @@ export const getAllUsers = async (req: Request, res: Response) => {
   }
 };
 
+export const getUserDetailsByUsername = async (req: Request, res: Response) => {
+  try {
+    const { username } = req.params;
+
+    const user = await User.findOne({ username }).select("-password");
+
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+
+    res.status(200).json({
+      id: user._id,
+      username: user.username,
+      fullName: user.fullname,
+      email: user.email,
+      profilePhoto: user.profilePhoto,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "An error occurred" });
+  }
+};
+
 export const getAuthenticatedUser = async (req: Request, res: Response) => {
   try {
     let token = "";
@@ -345,5 +369,155 @@ export const deleteUser = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "An unknown error occurred." });
+  }
+};
+
+export const followUser = async (req: Request, res: Response) => {
+  try {
+    const { username, usernameToFollow } = req.body;
+
+    if (!username || !usernameToFollow) {
+      return res
+        .status(400)
+        .json({ message: "Missing required information in the request body" });
+    }
+
+    const authToken = req.headers.authorization?.split(" ")[1] || "";
+    const decodedToken = jwt.verify(
+      authToken,
+      process.env.SECRET_KEY || ""
+    ) as DecodedToken;
+    const authenticatedUserId = decodedToken.id;
+
+    if (username !== decodedToken.username) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized action: Invalid username" });
+    }
+
+    const userToFollow = await User.findOne({ username: usernameToFollow });
+
+    if (!userToFollow) {
+      return res.status(404).json({ message: "User to follow not found" });
+    }
+
+    const updatedAuthenticatedUser = await User.findByIdAndUpdate(
+      authenticatedUserId,
+      { $addToSet: { following: userToFollow._id } },
+      { new: true }
+    );
+
+    if (!updatedAuthenticatedUser) {
+      return res.status(404).json({ message: "Authenticated user not found" });
+    }
+
+    const updatedUserToFollow = await User.findByIdAndUpdate(
+      userToFollow._id,
+      { $addToSet: { followers: authenticatedUserId } },
+      { new: true }
+    );
+
+    if (!updatedUserToFollow) {
+      return res
+        .status(404)
+        .json({ message: "User to follow not found after update" });
+    }
+
+    const newToken = signToken(
+      updatedAuthenticatedUser.id,
+      updatedAuthenticatedUser.username as string
+    );
+    res.status(200).json({
+      authenticatedUser: updatedAuthenticatedUser,
+      userToFollow: updatedUserToFollow,
+      token: newToken,
+    });
+  } catch (error: any) {
+    console.error(error);
+
+    if (error.name === "JsonWebTokenError") {
+      return res
+        .status(401)
+        .json({ message: "Invalid token: Authentication failed" });
+    }
+
+    res
+      .status(500)
+      .json({ message: error.message || "An unknown error occurred." });
+  }
+};
+
+export const unfollowUser = async (req: Request, res: Response) => {
+  try {
+    const { username, usernameToUnfollow } = req.body;
+
+    if (!username || !usernameToUnfollow) {
+      return res
+        .status(400)
+        .json({ message: "Missing required information in the request body" });
+    }
+
+    const authToken = req.headers.authorization?.split(" ")[1] || "";
+    const decodedToken = jwt.verify(
+      authToken,
+      process.env.SECRET_KEY || ""
+    ) as DecodedToken;
+    const authenticatedUserId = decodedToken.id;
+
+    if (username !== decodedToken.username) {
+      return res
+        .status(401)
+        .json({ message: "Unauthorized action: Invalid username" });
+    }
+
+    const userToUnfollow = await User.findOne({ username: usernameToUnfollow });
+
+    if (!userToUnfollow) {
+      return res.status(404).json({ message: "User to unfollow not found" });
+    }
+
+    const updatedAuthenticatedUser = await User.findByIdAndUpdate(
+      authenticatedUserId,
+      { $pull: { following: userToUnfollow._id } },
+      { new: true }
+    );
+
+    if (!updatedAuthenticatedUser) {
+      return res.status(404).json({ message: "Authenticated user not found" });
+    }
+
+    const updatedUserToUnfollow = await User.findByIdAndUpdate(
+      userToUnfollow._id,
+      { $pull: { followers: authenticatedUserId } },
+      { new: true }
+    );
+
+    if (!updatedUserToUnfollow) {
+      return res
+        .status(404)
+        .json({ message: "User to unfollow not found after update" });
+    }
+
+    const newToken = signToken(
+      updatedAuthenticatedUser.id,
+      updatedAuthenticatedUser.username as string
+    );
+    res.status(200).json({
+      authenticatedUser: updatedAuthenticatedUser,
+      userToUnfollow: updatedUserToUnfollow,
+      token: newToken,
+    });
+  } catch (error: any) {
+    console.error(error);
+
+    if (error.name === "JsonWebTokenError") {
+      return res
+        .status(401)
+        .json({ message: "Invalid token: Authentication failed" });
+    }
+
+    res
+      .status(500)
+      .json({ message: error.message || "An unknown error occurred." });
   }
 };
