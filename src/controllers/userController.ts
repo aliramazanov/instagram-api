@@ -56,29 +56,47 @@ export const getAuthenticatedUser = async (req: Request, res: Response) => {
     ) {
       token = req.headers.authorization.split(" ")[1];
     } else {
-      res.status(404).json({ error: "error" });
+      res.status(401).json({ error: "Unauthorized: Token missing" });
       return;
     }
 
-    const decodedToken = jwt.verify(
-      token,
-      process.env.SECRET_KEY || ""
-    ) as DecodedToken;
+    try {
+      const decodedToken = jwt.verify(
+        token,
+        process.env.SECRET_KEY as string
+      ) as DecodedToken;
 
-    const user = await User.findById(decodedToken.id);
+      const id = decodedToken.id;
 
-    if (!user) {
-      res.status(404).json({ error: "User not found" });
-      return;
+      try {
+        const user = await User.findById(id);
+
+        if (user) {
+          res.status(200).json({
+            id: user._id,
+            username: user.username,
+            fullName: user.fullname,
+            email: user.email,
+            profilePhoto: user.profilePhoto,
+          });
+        } else {
+          res
+            .status(404)
+            .json({
+              error: "User not found",
+              additionalInfo: "This user does not exist in the system.",
+            });
+        }
+      } catch (error) {
+        console.error(error);
+        res
+          .status(500)
+          .json({ error: "An error occurred while fetching user" });
+      }
+    } catch (error) {
+      console.error(error);
+      res.status(401).json({ error: "Unauthorized: Invalid token" });
     }
-
-    res.status(200).json({
-      id: user._id,
-      username: user.username,
-      fullName: user.fullname,
-      email: user.email,
-      profilePhoto: user.profilePhoto,
-    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "An error occurred" });

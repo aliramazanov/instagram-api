@@ -1,16 +1,16 @@
 import { Router } from "express";
 import {
-  deleteUser,
   getAllUsers,
   getUserDetailsByUsername,
   getAuthenticatedUser,
+  updateUsername,
   updateEmail,
   updateFullName,
   updatePassword,
-  updateUsername,
   uploadProfilePhoto,
   followUser,
   unfollowUser,
+  deleteUser,
 } from "../controllers/userController";
 
 const userRouter = Router();
