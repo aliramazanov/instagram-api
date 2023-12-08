@@ -25,11 +25,11 @@ export const getAllUsers = async (req: Request, res: Response) => {
 export const getUserDetailsByUsername = async (req: Request, res: Response) => {
   try {
     const { username } = req.params;
-
     const user = await User.findOne({ username }).select("-password");
-
     if (!user) {
-      res.status(404).json({ error: "User not found" });
+      res
+        .status(404)
+        .json({ error: "getUserDetailsByUsername: User not found" });
       return;
     }
 
@@ -42,13 +42,15 @@ export const getUserDetailsByUsername = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "An error occurred" });
+    res.status(500).json({
+      error: "getUserDetailsByUsername: An error occurred on response",
+    });
   }
 };
 
 export const getAuthenticatedUser = async (req: Request, res: Response) => {
   try {
-    let token = "";
+    let token;
 
     if (
       req.headers.authorization &&
@@ -56,50 +58,33 @@ export const getAuthenticatedUser = async (req: Request, res: Response) => {
     ) {
       token = req.headers.authorization.split(" ")[1];
     } else {
-      res.status(401).json({ error: "Unauthorized: Token missing" });
+      res.status(404).json({ error: "error" });
       return;
     }
 
-    try {
-      const decodedToken = jwt.verify(
-        token,
-        process.env.SECRET_KEY as string
-      ) as DecodedToken;
+    const decodedToken = jwt.verify(
+      token,
+      process.env.SECRET_KEY || ""
+    ) as DecodedToken;
 
-      const id = decodedToken.id;
+    const user = await User.findById(decodedToken.id);
 
-      try {
-        const user = await User.findById(id);
-
-        if (user) {
-          res.status(200).json({
-            id: user._id,
-            username: user.username,
-            fullName: user.fullname,
-            email: user.email,
-            profilePhoto: user.profilePhoto,
-          });
-        } else {
-          res
-            .status(404)
-            .json({
-              error: "User not found",
-              additionalInfo: "This user does not exist in the system.",
-            });
-        }
-      } catch (error) {
-        console.error(error);
-        res
-          .status(500)
-          .json({ error: "An error occurred while fetching user" });
-      }
-    } catch (error) {
-      console.error(error);
-      res.status(401).json({ error: "Unauthorized: Invalid token" });
+    if (!user) {
+      res.status(404).json({ error: "getAuthenticatedUser: User not found" });
+      return;
     }
+
+    res.status(200).json({
+      id: user._id,
+      username: user.username,
+      fullName: user.fullname,
+      email: user.email,
+    });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: "An error occurred" });
+    res
+      .status(500)
+      .json({ error: "getAuthenticatedUser: An error occurred on response" });
   }
 };
 
@@ -107,15 +92,18 @@ export const updateUsername = async (req: Request, res: Response) => {
   try {
     const { username, newUsername } = req.body;
 
-    console.log("Received updateUsername request", req.body);
+    console.log("Received request", req.body);
 
     const trimmedUsername = newUsername ? newUsername.trim() : "";
 
     if (!trimmedUsername || typeof trimmedUsername !== "string") {
-      console.error("Invalid username in request body", trimmedUsername);
+      console.error(
+        "updateUsername: Invalid username in request body",
+        trimmedUsername
+      );
       return res
         .status(400)
-        .send({ message: "Invalid username in request body" });
+        .send({ message: "updateUsername: Invalid username in request body" });
     }
 
     console.log("Processed newUsername", trimmedUsername);
@@ -124,7 +112,9 @@ export const updateUsername = async (req: Request, res: Response) => {
 
     if (!existingUser) {
       console.error("User not found");
-      return res.status(404).send({ message: "User not found" });
+      return res
+        .status(404)
+        .send({ message: "updateUsername: User not found" });
     }
 
     const userId = existingUser._id;
@@ -136,8 +126,10 @@ export const updateUsername = async (req: Request, res: Response) => {
     );
 
     if (!updatedUser) {
-      console.error("User not found after update");
-      return res.status(404).send({ message: "User not found" });
+      console.error("updateUsername: User not found after update");
+      return res
+        .status(404)
+        .send({ message: "updateUsername: User not found" });
     }
 
     console.log("Username updated successfully");
@@ -157,7 +149,9 @@ export const updateUsername = async (req: Request, res: Response) => {
     }
 
     console.error("An unknown error occurred");
-    return res.status(500).send({ message: "An unknown error occurred." });
+    return res.status(500).send({
+      message: "updateUsername: An unknown error occurred on response",
+    });
   }
 };
 
@@ -172,7 +166,7 @@ export const updateEmail = async (req: Request, res: Response) => {
     const existingUser = await User.findOne({ username });
 
     if (!existingUser) {
-      return res.status(404).send({ message: "User not found" });
+      return res.status(404).send({ message: "updateEmail: User not found " });
     }
 
     const userId = existingUser._id;
@@ -184,7 +178,7 @@ export const updateEmail = async (req: Request, res: Response) => {
     );
 
     if (!updatedUser) {
-      return res.status(404).send({ message: "User not found" });
+      return res.status(404).send({ message: "updateEmail: User not found" });
     }
 
     console.log("Email updated successfully");
@@ -203,8 +197,10 @@ export const updateEmail = async (req: Request, res: Response) => {
       return res.status(400).send({ message: "Invalid user ID" });
     }
 
-    console.log("An unknown error occurred");
-    res.status(500).send({ message: "An unknown error occurred." });
+    console.log("updateEmail: An unknown error occurred");
+    res
+      .status(500)
+      .send({ message: "updateEmail: An unknown error occurred on response" });
   }
 };
 
@@ -215,13 +211,15 @@ export const updateFullName = async (req: Request, res: Response) => {
     if (!newFullname || typeof newFullname !== "string") {
       return res
         .status(400)
-        .send({ message: "Invalid full name in request body" });
+        .send({ message: "updateFullName: Invalid full name in request body" });
     }
 
     const existingUser = await User.findOne({ username });
 
     if (!existingUser) {
-      return res.status(404).send({ message: "User not found" });
+      return res
+        .status(404)
+        .send({ message: "updateFullName: User not found" });
     }
 
     const userId = existingUser._id;
@@ -233,7 +231,9 @@ export const updateFullName = async (req: Request, res: Response) => {
     );
 
     if (!updatedUser) {
-      return res.status(404).send({ message: "User not found" });
+      return res
+        .status(404)
+        .send({ message: "updateFullName: User not found" });
     }
 
     console.log("Full name updated successfully");
@@ -252,8 +252,10 @@ export const updateFullName = async (req: Request, res: Response) => {
       return res.status(400).send({ message: "Invalid user ID" });
     }
 
-    console.log("An unknown error occurred");
-    res.status(500).send({ message: "An unknown error occurred." });
+    console.log("updateFullName: An unknown error occurred");
+    res
+      .status(500)
+      .send({ message: "updateFullName: An unknown error occurred." });
   }
 };
 
@@ -284,7 +286,9 @@ export const updatePassword = async (req: Request, res: Response) => {
     );
 
     if (!updatedUser) {
-      return res.status(404).send({ message: "User not found" });
+      return res
+        .status(404)
+        .send({ message: "updatePassword: User not found" });
     }
 
     console.log("Password updated successfully");
@@ -303,8 +307,10 @@ export const updatePassword = async (req: Request, res: Response) => {
       return res.status(400).send({ message: "Invalid user ID" });
     }
 
-    console.log("An unknown error occurred");
-    res.status(500).send({ message: "An unknown error occurred." });
+    console.log("updatePassword: An unknown error occurred");
+    res.status(500).send({
+      message: "updatePassword: An unknown error occurred on response",
+    });
   }
 };
 
@@ -315,7 +321,9 @@ export const uploadProfilePhoto = async (req: Request, res: Response) => {
     const existingUser = await User.findOne({ username });
 
     if (!existingUser) {
-      return res.status(404).send({ message: "User not found" });
+      return res
+        .status(404)
+        .send({ message: "uploadProfilePhoto: User not found" });
     }
 
     const userId = existingUser._id;
@@ -328,7 +336,9 @@ export const uploadProfilePhoto = async (req: Request, res: Response) => {
       );
 
       if (!updatedUser) {
-        return res.status(404).send({ message: "User not found" });
+        return res
+          .status(404)
+          .send({ message: "uploadProfilePhoto: User not found" });
       }
 
       console.log("Profile photo uploaded successfully");
@@ -344,7 +354,9 @@ export const uploadProfilePhoto = async (req: Request, res: Response) => {
     }
   } catch (error: any) {
     console.error(error);
-    return res.status(500).send({ message: "An unknown error occurred." });
+    return res.status(500).send({
+      message: "uploadProfilePhoto: An unknown error occurred on response",
+    });
   }
 };
 
@@ -358,7 +370,9 @@ export const deleteUser = async (req: Request, res: Response) => {
     ) {
       token = req.headers.authorization.split(" ")[1];
     } else {
-      return res.status(401).json({ message: "User not authenticated" });
+      return res
+        .status(401)
+        .json({ message: "deleteUser: User not authenticated" });
     }
 
     const decodedToken = jwt.verify(token, process.env.SECRET_KEY || "") as {
@@ -368,25 +382,29 @@ export const deleteUser = async (req: Request, res: Response) => {
     const userId = decodedToken.id;
 
     if (!userId) {
-      return res.status(401).json({ message: "User not authenticated" });
+      return res
+        .status(401)
+        .json({ message: "deleteUser: User not authenticated" });
     }
 
     const user = await User.findById(userId);
 
     if (!user) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "deleteUser: User not found" });
     }
 
     const deletedUser = await User.findByIdAndDelete(userId);
 
     if (!deletedUser) {
-      return res.status(404).json({ message: "User not found" });
+      return res.status(404).json({ message: "deleteUser: User not found" });
     }
 
     return res.status(200).json({ message: "User has been deleted" });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ message: "An unknown error occurred." });
+    return res
+      .status(500)
+      .json({ message: "deleteUser: An unknown error occurred on response" });
   }
 };
 
@@ -395,9 +413,9 @@ export const followUser = async (req: Request, res: Response) => {
     const { username, usernameToFollow } = req.body;
 
     if (!username || !usernameToFollow) {
-      return res
-        .status(400)
-        .json({ message: "Missing required information in the request body" });
+      return res.status(400).json({
+        message: "followUser: Missing required information in the request body",
+      });
     }
 
     const authToken = req.headers.authorization?.split(" ")[1] || "";
@@ -410,13 +428,15 @@ export const followUser = async (req: Request, res: Response) => {
     if (username !== decodedToken.username) {
       return res
         .status(401)
-        .json({ message: "Unauthorized action: Invalid username" });
+        .json({ message: "followUser: Unauthorized action: Invalid username" });
     }
 
     const userToFollow = await User.findOne({ username: usernameToFollow });
 
     if (!userToFollow) {
-      return res.status(404).json({ message: "User to follow not found" });
+      return res
+        .status(404)
+        .json({ message: "followUser: User to follow not found" });
     }
 
     const updatedAuthenticatedUser = await User.findByIdAndUpdate(
@@ -426,7 +446,9 @@ export const followUser = async (req: Request, res: Response) => {
     );
 
     if (!updatedAuthenticatedUser) {
-      return res.status(404).json({ message: "Authenticated user not found" });
+      return res
+        .status(404)
+        .json({ message: "followUser: Authenticated user not found" });
     }
 
     const updatedUserToFollow = await User.findByIdAndUpdate(
@@ -438,7 +460,7 @@ export const followUser = async (req: Request, res: Response) => {
     if (!updatedUserToFollow) {
       return res
         .status(404)
-        .json({ message: "User to follow not found after update" });
+        .json({ message: "followUser: User to follow not found after update" });
     }
 
     const newToken = signToken(
@@ -459,9 +481,9 @@ export const followUser = async (req: Request, res: Response) => {
         .json({ message: "Invalid token: Authentication failed" });
     }
 
-    res
-      .status(500)
-      .json({ message: error.message || "An unknown error occurred." });
+    res.status(500).json({
+      message: error.message || "followUser: An unknown error occurred.",
+    });
   }
 };
 
@@ -470,9 +492,10 @@ export const unfollowUser = async (req: Request, res: Response) => {
     const { username, usernameToUnfollow } = req.body;
 
     if (!username || !usernameToUnfollow) {
-      return res
-        .status(400)
-        .json({ message: "Missing required information in the request body" });
+      return res.status(400).json({
+        message:
+          "unfollowUser: Missing required information in the request body",
+      });
     }
 
     const authToken = req.headers.authorization?.split(" ")[1] || "";
@@ -483,15 +506,17 @@ export const unfollowUser = async (req: Request, res: Response) => {
     const authenticatedUserId = decodedToken.id;
 
     if (username !== decodedToken.username) {
-      return res
-        .status(401)
-        .json({ message: "Unauthorized action: Invalid username" });
+      return res.status(401).json({
+        message: "unfollowUser: Unauthorized action: Invalid username",
+      });
     }
 
     const userToUnfollow = await User.findOne({ username: usernameToUnfollow });
 
     if (!userToUnfollow) {
-      return res.status(404).json({ message: "User to unfollow not found" });
+      return res
+        .status(404)
+        .json({ message: "unfollowUser: User to unfollow not found" });
     }
 
     const updatedAuthenticatedUser = await User.findByIdAndUpdate(
@@ -501,7 +526,9 @@ export const unfollowUser = async (req: Request, res: Response) => {
     );
 
     if (!updatedAuthenticatedUser) {
-      return res.status(404).json({ message: "Authenticated user not found" });
+      return res
+        .status(404)
+        .json({ message: "unfollowUser: Authenticated user not found" });
     }
 
     const updatedUserToUnfollow = await User.findByIdAndUpdate(
@@ -511,9 +538,9 @@ export const unfollowUser = async (req: Request, res: Response) => {
     );
 
     if (!updatedUserToUnfollow) {
-      return res
-        .status(404)
-        .json({ message: "User to unfollow not found after update" });
+      return res.status(404).json({
+        message: "unfollowUser: User to unfollow not found after update",
+      });
     }
 
     const newToken = signToken(
@@ -536,6 +563,8 @@ export const unfollowUser = async (req: Request, res: Response) => {
 
     res
       .status(500)
-      .json({ message: error.message || "An unknown error occurred." });
+      .json({
+        message: error.message || "unfollowUser: An unknown error occurred.",
+      });
   }
 };
