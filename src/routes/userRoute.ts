@@ -17,7 +17,7 @@ const userRouter = Router();
 
 userRouter.get("/users/all", getAllUsers);
 userRouter.get("/users/get/:username", getUserDetailsByUsername);
-userRouter.post("/users/signedin", getAuthenticatedUser);
+userRouter.get("/users/signedin", getAuthenticatedUser);
 userRouter.patch("/users/modify/username", updateUsername);
 userRouter.patch("/users/modify/email", updateEmail);
 userRouter.patch("/users/modify/fullname", updateFullName);
