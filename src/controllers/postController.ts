@@ -93,3 +93,41 @@ export async function likePost(req: Request, res: Response) {
     res.status(500).send({ message: "An unknown error occurred." });
   }
 }
+
+export async function addCommentToPost(req: Request, res: Response) {
+  try {
+    const { postId } = req.params;
+    const { userId, comment } = req.body;
+
+    if (!userId || !comment) {
+      return res
+        .status(400)
+        .send({ message: "User ID and comment text are required." });
+    }
+
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(404).send({ message: "Post not found." });
+    }
+
+    const newComment = {
+      user: userId,
+      comment,
+    };
+
+    if (!post.comments) {
+      post.comments = [];
+    }
+
+    post.comments.push(newComment);
+    await post.save();
+
+    res
+      .status(201)
+      .send({ message: "Comment added successfully", comment: newComment });
+  } catch (error) {
+    console.error(`Error adding comment: ${error}`);
+    res.status(500).send({ message: "An unknown error occurred." });
+  }
+}

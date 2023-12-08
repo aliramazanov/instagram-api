@@ -4,6 +4,7 @@ import {
   createPost,
   deletePost,
   likePost,
+  addCommentToPost,
 } from "../controllers/postController";
 import { protect } from "../middleware/authMiddleware";
 
@@ -13,5 +14,6 @@ postRouter.get("/api/posts", getAllPosts);
 postRouter.post("/api/posts", protect, createPost);
 postRouter.delete("/api/posts/:id", deletePost);
 postRouter.post("/api/posts/:postId/like", likePost);
+postRouter.post("/api/posts/:postId/comment", protect, addCommentToPost);
 
 export default postRouter;
