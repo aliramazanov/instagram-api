@@ -79,6 +79,7 @@ export const getAuthenticatedUser = async (req: Request, res: Response) => {
       username: user.username,
       fullName: user.fullname,
       email: user.email,
+      profilePhoto: user.profilePhoto,
     });
   } catch (error) {
     console.error(error);
@@ -561,10 +562,8 @@ export const unfollowUser = async (req: Request, res: Response) => {
         .json({ message: "Invalid token: Authentication failed" });
     }
 
-    res
-      .status(500)
-      .json({
-        message: error.message || "unfollowUser: An unknown error occurred.",
-      });
+    res.status(500).json({
+      message: error.message || "unfollowUser: An unknown error occurred.",
+    });
   }
 };
