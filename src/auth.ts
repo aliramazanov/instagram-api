@@ -3,14 +3,10 @@ import dotenv from "dotenv";
 import express from "express";
 import session from "express-session";
 import passport from "passport";
-import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { Strategy as LocalStrategy } from "passport-local";
 import { User } from "./models/userModel";
 
 dotenv.config();
-
-const clientID = process.env.CLIENT_ID as string;
-const clientSecret = process.env.CLIENT_SECRET as string;
 
 export const configureAuthentication = (app: express.Application) => {
   app.use(
@@ -48,47 +44,6 @@ export const configureAuthentication = (app: express.Application) => {
           }
         } catch (error) {
           return done(error);
-        }
-      }
-    )
-  );
-
-  app.use(
-    session({
-      secret: "oauth-session-secret",
-      resave: false,
-      saveUninitialized: false,
-    })
-  );
-
-  passport.use(
-    new GoogleStrategy(
-      {
-        clientID: clientID,
-        clientSecret: clientSecret,
-        callbackURL:
-          "https://instagram-api-88fv.onrender.com/auth/google/callback",
-        scope: ["profile", "email"],
-      },
-      async function (accessToken, refreshToken, profile, cb) {
-        try {
-          const email = profile?.emails?.[0]?.value ?? null;
-
-          const existingUser = await User.findOne({ googleId: profile.id });
-
-          if (existingUser) {
-            return cb(null, existingUser);
-          } else {
-            const newUser = new User({
-              googleId: profile.id,
-              email: email,
-            });
-
-            const savedUser = await newUser.save();
-            return cb(null, savedUser);
-          }
-        } catch (err: Error | any) {
-          return cb(err || null, undefined);
         }
       }
     )
