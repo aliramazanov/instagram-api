@@ -16,7 +16,7 @@ import {
 const userRouter = Router();
 
 userRouter.get("/users/all", getAllUsers);
-userRouter.get("/users/:username", getUserDetailsByUsername);
+userRouter.get("/users/get/:username", getUserDetailsByUsername);
 userRouter.post("/users/signedin", getAuthenticatedUser);
 userRouter.patch("/users/modify/username", updateUsername);
 userRouter.patch("/users/modify/email", updateEmail);
