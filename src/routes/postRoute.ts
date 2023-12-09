@@ -14,6 +14,6 @@ postRouter.get("/api/posts", getAllPosts);
 postRouter.post("/api/posts", protect, createPost);
 postRouter.delete("/api/posts/:id", deletePost);
 postRouter.post("/api/posts/:postId/like", likePost);
-postRouter.post("/api/posts/:postId/comment", protect, addCommentToPost);
+postRouter.post("/api/posts/:postId/comment", addCommentToPost);
 
 export default postRouter;
