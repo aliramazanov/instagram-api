@@ -52,6 +52,47 @@ export async function createPost(req: Request, res: Response) {
   }
 }
 
+export async function uploadPost(req: Request, res: Response) {
+  try {
+    const { id } = req.user as { id: any };
+    const { title, url, base64Image } = req.body;
+
+    if (!title || !url) {
+      return res.status(400).send({ message: "Title and URL are required." });
+    }
+
+    const newPostData: any = {
+      user: id,
+      title,
+      postUrl: url,
+    };
+
+    if (base64Image) {
+      newPostData.postPhoto = base64Image;
+    }
+
+    const newPost = new Post(newPostData);
+
+    const savedPost = await newPost.save();
+
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { $push: { posts: savedPost._id } },
+      { new: true }
+    );
+
+    if (!updatedUser) {
+      throw new Error("User not found");
+    }
+
+    console.log(`Post added to user's posts: ${updatedUser}`);
+    res.status(200).send({ message: "Post created successfully" });
+  } catch (error) {
+    console.error(`Error creating post: ${error}`);
+    res.status(500).send({ message: "An unknown error occurred." });
+  }
+}
+
 export async function deletePost(req: Request, res: Response) {
   try {
     const { id } = req.params;
