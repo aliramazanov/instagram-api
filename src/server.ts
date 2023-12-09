@@ -1,7 +1,6 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import http from "http";
 import mongoose from "mongoose";
 import { configureAuthentication } from "./auth";
 import authRoute from "./routes/authRoute";
