@@ -80,6 +80,9 @@ export const getAuthenticatedUser = async (req: Request, res: Response) => {
       fullName: user.fullname,
       email: user.email,
       profilePhoto: user.profilePhoto,
+      posts: user.posts,
+      followers: user.followers,
+      following: user.following,
     });
   } catch (error) {
     console.error(error);
