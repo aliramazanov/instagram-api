@@ -55,16 +55,15 @@ export async function createPost(req: Request, res: Response) {
 export async function uploadPost(req: Request, res: Response) {
   try {
     const { id } = req.user as { id: any };
-    const { title, url, base64Image } = req.body;
+    const { title, base64Image } = req.body;
 
-    if (!title || !url) {
-      return res.status(400).send({ message: "Title and URL are required." });
+    if (!title) {
+      return res.status(400).send({ message: "Title is required." });
     }
 
     const newPostData: any = {
       user: id,
       title,
-      postUrl: url,
     };
 
     if (base64Image) {
