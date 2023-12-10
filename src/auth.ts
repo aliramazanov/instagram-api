@@ -8,8 +8,8 @@ import { User } from "./models/userModel";
 
 dotenv.config();
 
-export const configureAuthentication = (app: express.Application) => {
-  app.use(
+export const configureAuthentication = (auth: express.Application) => {
+  auth.use(
     session({
       secret: "instagram-passport-pass",
       resave: false,
@@ -17,10 +17,10 @@ export const configureAuthentication = (app: express.Application) => {
     })
   );
 
-  app.use(express.json());
+  auth.use(express.json());
 
-  app.use(passport.initialize());
-  app.use(passport.session());
+  auth.use(passport.initialize());
+  auth.use(passport.session());
 
   passport.use(
     new LocalStrategy(
@@ -63,5 +63,5 @@ export const configureAuthentication = (app: express.Application) => {
     }
   });
 
-  return app;
+  return auth;
 };
