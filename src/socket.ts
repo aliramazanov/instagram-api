@@ -16,28 +16,31 @@ export const startSocket = (server: HttpServer) => {
     next();
   });
 
-  io.on("connection", (socket: Socket) => {
-    const userId = socket.id;
+  io.on(
+    "connection",
+    (socket: Socket & { handshake?: { query?: { userId?: string } } }) => {
+      const userId: any = socket.handshake?.query?.userId;
+      socket.join(userId);
 
-    socket.join(userId);
-    console.log(`User ${userId} connected`);
+      console.log(`User ${userId} connected`);
 
-    io.to(socket.id).emit("user_connected", userId);
+      socket.emit("socketId", userId);
+      io.to(socket.id).emit("user_connected", userId);
 
-    socket.onAny((eventName, ...args) => {
-      console.log(`Received message from ${userId}: ${eventName}`, args);
-    });
+      socket.onAny((eventName, ...args) => {
+        console.log(`Received message from ${userId}: ${eventName}`, args);
+      });
 
-    socket.on("private_message", (data: { to: string; message: string }) => {
-      const { to, message } = data;
+      socket.on("private_message", (data: { to: string; message: string }) => {
+        const { to, message } = data;
+        io.to(to).emit("private_message", { from: userId, message });
+      });
 
-      io.to(to).emit("private_message", { from: userId, message });
-    });
-
-    socket.on("disconnect", () => {
-      console.log(`User disconnected: ${userId}`);
-    });
-  });
+      socket.on("disconnect", () => {
+        console.log(`User disconnected: ${userId}`);
+      });
+    }
+  );
 
   return io;
 };
