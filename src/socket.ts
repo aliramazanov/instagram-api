@@ -7,7 +7,7 @@ export const startSocket = (server: HttpServer) => {
       origin: [
         "http://localhost:5173",
         "https://instagram-client-abb.vercel.app",
-        "https://instagram-client-zvbb.onrender.com/",
+        "https://instagram-client-zvbb.onrender.com",
       ],
       methods: ["GET", "POST"],
     },
