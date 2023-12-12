@@ -39,6 +39,8 @@ export const getUserDetailsByUsername = async (req: Request, res: Response) => {
       fullName: user.fullname,
       email: user.email,
       profilePhoto: user.profilePhoto,
+      followers: user.followers,
+      following: user.following,
     });
   } catch (error) {
     console.error(error);
