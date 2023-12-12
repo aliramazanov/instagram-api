@@ -69,7 +69,9 @@ export const getAuthenticatedUser = async (req: Request, res: Response) => {
       process.env.SECRET_KEY || ""
     ) as DecodedToken;
 
-    const user = await User.findById(decodedToken.id);
+    const user = await User.findById(decodedToken.id)
+      .populate("followers", "username")
+      .populate("following", "username");
 
     if (!user) {
       res.status(404).json({ error: "getAuthenticatedUser: User not found" });
