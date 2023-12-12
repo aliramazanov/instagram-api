@@ -73,8 +73,14 @@ export const getAuthenticatedUser = async (req: Request, res: Response) => {
     ) as DecodedToken;
 
     const user = await User.findById(decodedToken.id)
-      .populate("followers", "username")
-      .populate("following", "username");
+      .populate({
+        path: "followers",
+        select: "username profilePhoto",
+      })
+      .populate({
+        path: "following",
+        select: "username profilePhoto",
+      });
 
     if (!user) {
       res.status(404).json({ error: "getAuthenticatedUser: User not found" });
