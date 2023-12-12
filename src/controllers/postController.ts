@@ -4,7 +4,13 @@ import { User } from "../models/userModel";
 
 export async function getAllPosts(req: Request, res: Response) {
   try {
-    const allPosts = await Post.find({}, "user title postUrl likes comments");
+    const allPosts = await Post.find({}, "user title postUrl likes comments")
+      .populate({
+        path: "comments.user",
+        model: "User",
+        select: "username",
+      })
+      .exec();
 
     if (allPosts.length === 0) {
       return res.status(404).send({ message: "No posts found" });
