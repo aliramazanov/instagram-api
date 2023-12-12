@@ -6,9 +6,14 @@ export async function getAllPosts(req: Request, res: Response) {
   try {
     const allPosts = await Post.find({}, "user title postUrl likes comments")
       .populate({
+        path: "user",
+        model: "User",
+        select: "username profilePhoto",
+      })
+      .populate({
         path: "comments.user",
         model: "User",
-        select: "username",
+        select: "username profilePhoto",
       })
       .exec();
 
