@@ -80,6 +80,10 @@ export const getAuthenticatedUser = async (req: Request, res: Response) => {
       .populate({
         path: "following",
         select: "username profilePhoto",
+      })
+      .populate({
+        path: "posts",
+        select: "user title postUrl postPhoto likes comments",
       });
 
     if (!user) {
