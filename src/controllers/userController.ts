@@ -28,7 +28,20 @@ export const getAllUsers = async (req: Request, res: Response) => {
 export const getUserDetailsByUsername = async (req: Request, res: Response) => {
   try {
     const { username } = req.params;
-    const user = await User.findOne({ username }).select("-password");
+    const user = await User.findOne({ username })
+      .select("-password")
+      .populate({
+        path: "followers",
+        select: "username profilePhoto",
+      })
+      .populate({
+        path: "following",
+        select: "username profilePhoto",
+      })
+      .populate({
+        path: "posts",
+        select: "user title postUrl postPhoto likes comments",
+      });
     if (!user) {
       res
         .status(404)
@@ -42,6 +55,7 @@ export const getUserDetailsByUsername = async (req: Request, res: Response) => {
       fullName: user.fullname,
       email: user.email,
       profilePhoto: user.profilePhoto,
+      posts: user.posts,
       followers: user.followers,
       following: user.following,
     });
