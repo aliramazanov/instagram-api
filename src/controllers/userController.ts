@@ -14,7 +14,10 @@ interface DecodedToken {
 
 export const getAllUsers = async (req: Request, res: Response) => {
   try {
-    const allUsers = await User.find({}, "_id username email fullname posts");
+    const allUsers = await User.find(
+      {},
+      "_id username email fullname posts profilePhoto"
+    );
     res.status(200).json({ users: allUsers });
   } catch (error) {
     console.error(error);
