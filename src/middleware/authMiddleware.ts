@@ -8,7 +8,6 @@ export const protect = async (
   next: NextFunction
 ) => {
   try {
-    // 1) Getting token and check of it's there
     let token;
     if (
       req.headers.authorization &&
@@ -24,10 +23,8 @@ export const protect = async (
       });
     }
 
-    // 2) Verification token
     const decoded = await jwt.verify(token, process.env.SECRET_KEY as string);
 
-    // 3) Check if user still exists
     //@ts-ignore
     const currentUser = await User.findById(decoded.id);
     if (!currentUser) {
@@ -37,9 +34,6 @@ export const protect = async (
       });
     }
 
-    // 4) Check if user changed password after the token was issued
-
-    // GRANT ACCESS TO PROTECTED ROUTE
     req.user = currentUser;
 
     next();
