@@ -28,16 +28,16 @@ export async function getAllPosts(req: Request, res: Response) {
 export async function createPost(req: Request, res: Response) {
   try {
     const { id } = req.user as { id: any };
-    const { title, url } = req.body;
+    const { title, base64Image } = req.body;
 
-    if (!title || !url) {
-      return res.status(400).send({ message: "Title and URL are required." });
+    if (!title || !base64Image) {
+      return res.status(400).send({ message: "Title and Image are required." });
     }
 
     const newPost = new Post({
       user: id,
       title,
-      postUrl: url,
+      postPhoto: base64Image,
     });
 
     const savedPost = await newPost.save();

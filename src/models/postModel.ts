@@ -4,11 +4,11 @@ const postSchema = new mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User",
-    required: false,
+    required: true,
   },
   title: {
     type: String,
-    required: false,
+    required: true,
   },
   postUrl: {
     type: String,
