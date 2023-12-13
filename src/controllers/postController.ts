@@ -4,7 +4,7 @@ import { User } from "../models/userModel";
 
 export async function getAllPosts(req: Request, res: Response) {
   try {
-    const allPosts = await Post.find({}, "user title postUrl likes comments")
+    const allPosts = await Post.find({}, "user title postPhoto likes comments")
       .populate({
         path: "user",
         select: "username profilePhoto",
