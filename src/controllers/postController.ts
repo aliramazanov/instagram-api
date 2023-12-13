@@ -71,7 +71,7 @@ export async function uploadPost(req: Request, res: Response) {
 
     const newPost = new Post({
       user: id,
-      title,
+      title: title,
       postPhoto: base64Image,
     });
 
@@ -87,7 +87,6 @@ export async function uploadPost(req: Request, res: Response) {
       throw new Error("User not found");
     }
 
-    console.log(`Post added to user's posts: ${updatedUser}`);
     res.status(200).send({ message: "Post created successfully" });
   } catch (error) {
     console.error(`Error creating post: ${error}`);
